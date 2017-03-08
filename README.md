@@ -1,4 +1,6 @@
-# PP_CELTRA_GAME
-Git repozitorij za delo html5
-
-### TODO
+## CELTRIN PROGRAMERSKI IZZIV - HTML5 PLATFORMER
+###Prioritetni plan
+* Sidescrolling level
+* Avtomatsko premikanje, interakcija z tappanjem
+* RWD za mobilne naprave 
+* ETC
