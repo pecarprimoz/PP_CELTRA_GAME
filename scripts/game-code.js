@@ -1,15 +1,20 @@
-
-var canvas, ctx, width,height,player, keys;
+var canvas, ctx, width,height,player;
 var offsetX=0,
     offsetY=0;
 window.onload=init;
-friction = 0.8,
-gravity = 0.2;
-keys=[];
+var friction = 0.8;
+var gravity = 0.2;
+var keys=[];
+var map=[];
+var widthCols=-1;
+var heightCols=-1;
+
+
 
 window.addEventListener("load",function(){
     update();
 });
+window.addEventListener('resize', handleWindowResize,false);
 
 document.body.addEventListener("keydown", function(e) {
     keys[e.keyCode] = true;
@@ -19,30 +24,30 @@ document.body.addEventListener("keyup", function(e) {
     keys[e.keyCode] = false;
 });
 
-function init(){
-    initCanvas();
-    initPlayer();
+function handleWindowResize() {
+    //V primeru da uporabnik spreminja dimenzije okna, se parametri spreminjajo
+    height = window.innerHeight;
+    width = window.innerWidth;
+    //ctx.canvas.width =window.innerWidth;
+    //ctx.canvas.height=3*window.innerWidth/4;
+    initCanvas()
     draw()
 }
 
-function keyboardControls(){
-    //key controls for debugging
-
+function init(){
+    initCanvas();
+    initPlayer();
+    createTileMap();
+    draw()
 }
 
-var thingsOnMap = [
-    [50,50],
-    [55,70],
-    [15,22],
-    [150,20],
-    [120,80],
-    [100,10],
-    [170,40],
-    [130,70],
-    [230,10],
-    [330,45],
-    [1400,65]
-];
+function handleWindowResize() {
+    //V primeru da uporabnik spreminja dimenzije okna, se parametri spreminjajo
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    initCanvas()
+    draw()
+}
 //template for sidescrolling tests
 
 function update(){
@@ -88,8 +93,8 @@ function update(){
     }
 
     ctx.clearRect(0,0,width,height);
-    player.draw()
     draw()
+
     requestAnimationFrame(update);
 }
 function draw(){
@@ -97,19 +102,8 @@ function draw(){
     ctx.translate(offsetX,offsetY);
     ctx.clearRect(-offsetX, -offsetY, width, height);
     player.draw();
-
-    var l = thingsOnMap.length;
-    for (var i = 0; i < l; i++) {
-        // we should really only draw the things that intersect the viewport!
-        // but I am lazy so we are drawing everything here
-        var x = thingsOnMap[i][0];
-        var y = thingsOnMap[i][1];
-        ctx.fillStyle = 'lightblue';
-        ctx.fillRect(x, y, 8, 8);
-        ctx.fillStyle = 'black';
-        ctx.fillText(x + ', ' + y, x, y) // just to show where we are drawing these things
-    }
-
+    player.draw()
+    drawTileMap()
     ctx.restore();
 }
 
@@ -121,22 +115,60 @@ function initCanvas() {
     width=canvas.width;
     height=canvas.height;
     canvas.tabIndex=1
+    widthCols=Math.round(width/32)
+    heightCols=Math.round(height/32)
 }
 
 function initPlayer() {
     player = {
         color: "red",
-        x : 20,
-        y : 20,
+        x : width/2,
+        y : height/2,
         width : 15,
         height : 15,
         speed : 3,
         velX : 0,
         velY : 0,
-        jump: false,
+        jumping: false,
         draw: function(){
             ctx.fillStyle=this.color;
             ctx.fillRect(this.x-offsetX,this.y-offsetY,this.width,this.height)
         }
+    }
+}
+
+function createTileMap(){
+    console.log(widthCols)
+    console.log(heightCols)
+    for(var i=0; i<heightCols; i++){
+        if(i===0 || i===heightCols-1){
+            map.push(Array.apply(null, Array(widthCols+1)).map(Number.prototype.valueOf,1))
+        }
+        else{
+        map.push(Array.apply(null, Array(widthCols)).map(Number.prototype.valueOf,0))
+        }
+    }
+    for(var i=0; i<map.length;i++){
+        map[i][0]=1
+        map[i][map[0].length-1]=1
+    }
+    console.log(map)
+}
+
+function drawTileMap(){
+    posX=0;
+    posY=0;
+    for(var i=0; i<map.length; i++){
+        for(var j=0; j<map[i].length; j++){
+            if(map[i][j]===1){
+                ctx.fillStyle = "black";
+                ctx.beginPath();
+                ctx.rect(posX,posY,32,32)
+                ctx.fill();
+            }
+            posX+=32
+        }
+        posX=0
+        posY+=32
     }
 }
