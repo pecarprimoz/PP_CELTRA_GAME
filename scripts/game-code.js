@@ -52,13 +52,17 @@ function handleWindowResize() {
 
 function update(){
     // check keys
+
+
     if (keys[38] || keys[32]) {
         // up arrow or space
-        if(!player.jumping){
+        if(!player.jumping && player.onground){
             player.jumping = true;
+            player.onground = false;
             player.velY = -player.speed*2;
         }
     }
+
     if (keys[39]) {
         // right arrow
         if (player.velX < player.speed) {
@@ -73,13 +77,12 @@ function update(){
             offsetX+=3;
         }
     }
+    ctx.clearRect(0,0,width,height);
 
     player.velX *= friction;
-
     player.velY += gravity;
 
-    player.x += player.velX;
-    player.y += player.velY;
+
 
     if (player.x >= width-player.width) {
         player.x = width-player.width;
@@ -91,17 +94,21 @@ function update(){
         player.y = height - player.height;
         player.jumping = false;
     }
+    if(player.onground){
+        player.velY=0
+    }
+    player.x += player.velX;
+    player.y += player.velY;
 
-    ctx.clearRect(0,0,width,height);
     draw()
-
+    checkTileCollisions()
+    //incrementTileMapWidth()
     requestAnimationFrame(update);
 }
 function draw(){
     ctx.save();
     ctx.translate(offsetX,offsetY);
     ctx.clearRect(-offsetX, -offsetY, width, height);
-    player.draw();
     player.draw()
     drawTileMap()
     ctx.restore();
@@ -130,6 +137,7 @@ function initPlayer() {
         velX : 0,
         velY : 0,
         jumping: false,
+        onground: false,
         draw: function(){
             ctx.fillStyle=this.color;
             ctx.fillRect(this.x-offsetX,this.y-offsetY,this.width,this.height)
@@ -141,34 +149,60 @@ function createTileMap(){
     console.log(widthCols)
     console.log(heightCols)
     for(var i=0; i<heightCols; i++){
-        if(i===0 || i===heightCols-1){
+        if(i===heightCols-1){
             map.push(Array.apply(null, Array(widthCols+1)).map(Number.prototype.valueOf,1))
         }
         else{
         map.push(Array.apply(null, Array(widthCols)).map(Number.prototype.valueOf,0))
         }
     }
-    for(var i=0; i<map.length;i++){
-        map[i][0]=1
-        map[i][map[0].length-1]=1
-    }
+
     console.log(map)
 }
+var collisionCheck;
 
 function drawTileMap(){
     posX=0;
     posY=0;
+    collisionCheck=[]
     for(var i=0; i<map.length; i++){
+        collisionCheck.push([])
         for(var j=0; j<map[i].length; j++){
             if(map[i][j]===1){
                 ctx.fillStyle = "black";
                 ctx.beginPath();
                 ctx.rect(posX,posY,32,32)
+                collisionCheck[i].push({blockX:posX,blockY:posY,blockW:32,blockH:32,isSolid:true})
                 ctx.fill();
+            }
+            else{
+                collisionCheck[i].push({blockX:posX,blockY:posY,blockW:32,blockH:32,isSolid:false})
             }
             posX+=32
         }
         posX=0
         posY+=32
     }
+}
+//TODO fix this
+function checkTileCollisions(){
+    for(var i=0; i<collisionCheck.length; i++){
+        for(var j=0; j<collisionCheck[i].length; j++){
+            if(collisionCheck[i][j].isSolid===true){
+                if(boxInterect(collisionCheck[i][j])){
+                    player.y=collisionCheck[i][j].blockY-player.height
+                    player.onground=true
+                }
+            }
+            if(!collisionCheck[i][j].isSolid){
+                player.jumping=false
+                player.onground=false;
+            }
+        }
+    }
+}
+function boxInterect(b){
+    var a=player
+    return (Math.abs(a.x-b.blockX) * 2 < (a.width + b.blockW)) &&
+        (Math.abs(a.y-b.blockY) * 2 <(a.height + b.blockH))
 }
