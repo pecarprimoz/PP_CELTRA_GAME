@@ -9,3 +9,8 @@
 * Collision detection za tilemapping
 * Sprite-i za lepsi izgled
 * Consumabli ?
+
+### Mozni tile set-i
+http://opengameart.org/content/dirt-platformer-tiles
+http://opengameart.org/content/platformer-art-deluxe
+http://opengameart.org/content/a-platformer-in-the-forest
