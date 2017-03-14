@@ -1,6 +1,5 @@
 ## CELTRIN PROGRAMERSKI IZZIV - HTML5 PLATFORMER
-###Prioritetni plan
-###DONE
+### DONE
 ~~Sidescrolling level~~
 ~~RWD za mobile naprave~~
    
