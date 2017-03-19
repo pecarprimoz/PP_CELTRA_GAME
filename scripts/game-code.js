@@ -1,15 +1,16 @@
-var canvas, ctx, width,height,player,
-    worldOffsetX=0,
-    tileOffsetX=0,
-    worldOffsetY=0,
-    tileOffsetY=0;
+let canvas, ctx, width, height, player,
+    worldOffsetX = 0,
+    tileOffsetX = 0,
+    worldOffsetY = 0,
+    tileOffsetY = 0,
+    tileSide = 0;
 
 window.onload=init;
-var keys=[];
-var map=[];
-var tiles=[];
-var widthCols=-1;
-var heightCols=-1;
+const keys = [];
+const map = [];
+const tiles = [];
+let widthCols = -1;
+let heightCols = -1;
 
 /* EVENT LISTENERJI ZA SCREEN ROTATE IN KEY KONTROLE */
 window.addEventListener("load",function(){
@@ -25,30 +26,109 @@ document.body.addEventListener("keyup", function(e) {
     keys[e.keyCode] = false;
 });
 
+const initGame = function(){
+    initCanvas();
+    initPlayer();
+    initTiles();
+    createTileMap();
+
+    function initCanvas() {
+        canvas=document.getElementById("canvas");
+        ctx = canvas.getContext("2d");
+        ctx.canvas.width  = window.innerWidth;
+        ctx.canvas.height = window.innerHeight;
+        width=canvas.width;
+        height=canvas.height;
+        canvas.tabIndex=1;
+
+        if(height>width){
+            tileSide=Math.round(height/25);
+        }
+        else{
+            tileSide=Math.round(width/25);
+        }
+
+        widthCols=tileSide;
+        heightCols=Math.ceil(height/tileSide);
+    }
+    function initPlayer(){
+        player = {
+            color: "red",
+            x : widthCols/2,
+            y : heightCols/2,
+            width : 1,
+            height : 1,
+            speed : 0.2,
+            jumping: false,
+            draw: function(){
+                ctx.fillStyle=this.color;
+                ctx.fillRect(Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),Math.floor(this.height*tileSide))
+            }
+        }
+    }
+
+    function createTileMap(){
+        for(let i=0; i<100; i++){
+            if(i===heightCols){
+                map.push(Array.apply(null, Array(100)).map(Number.prototype.valueOf,1))
+            }
+            else{
+                map.push(Array.apply(null, Array(100)).map(Number.prototype.valueOf,0))
+            }
+        }
+        map[3][5]=1;
+        for(let i=0; i<7; i++){
+            map[10][5+i]=0
+        }
+        for(let i=0; i<7; i++){
+            map[10][15+i]=0
+        }
+        console.log(map)
+    }
+    return {
+        initCanvas
+    };
+    function initTiles(){
+        let sky = new Image();
+        sky.src="http://localhost:63342/st/CELTRA/imgs/sky-temp.png"
+        tiles.push(sky)
+        let ground = new Image();
+        ground.src="http://localhost:63342/st/CELTRA/imgs/ground-tile.png"
+        tiles.push(ground)
+    }
+};
+
+/* IZRIS VSEGA */
+const draw = function (){
+    ctx.clearRect(0,0, width, height);
+    drawTileMap();
+    player.draw();
+
+    function drawTileMap(){
+        //+3, ker izrisujemo en tile prej(levo), ker indeksiramo z 0, in tile za tem
+        posX=-Math.floor(tileSide);
+        posY=-Math.floor(tileSide);
+        for(let i=worldOffsetY; i<heightCols+worldOffsetY+3; i++){
+            for(let j=worldOffsetX; j<widthCols+worldOffsetX+3; j++){
+                if(map[i][j]===1){
+                    ctx.drawImage(tiles[1],posX+tileOffsetX,posY+tileOffsetY,tileSide,tileSide);
+                }
+                else{
+                    ctx.drawImage(tiles[0],posX+tileOffsetX,posY+tileOffsetY,tileSide,tileSide);
+                }
+                posX+=tileSide
+            }
+            posX=-tileSide;
+            posY+=tileSide;
+        }
+    }
+};
 function init(){
-    initGame()
-    draw()
-}
-
-function update(){
-    //preverjamo premikanje
-    controls();
-
-    //izris na canvas
-    draw();
-
-    requestAnimationFrame(update);
-}
-
-function handleWindowResize() {
-    //V primeru da uporabnik spreminja dimenzije okna, se parametri spreminjajo
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-    init.initCanvas;
+    initGame();
     draw();
 }
 
-var controls = () =>{
+const controls = () =>{
     if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
         keyboardControls()
     }
@@ -60,9 +140,9 @@ var controls = () =>{
     function keyboardControls() {
         if(keys[38] || keys[32]){
             //preverjamo ali je čez 1/4 ekrana
-            if(player.y<height/8){
+            if(player.y<heightCols/8){
 
-                if(worldOffsetY!==0 && tileOffsetY>=32){
+                if(worldOffsetY!==0 && tileOffsetY>=tileSide){
                     tileOffsetY=0;
                     if(worldOffsetY!==0)
                         worldOffsetY--;
@@ -76,8 +156,8 @@ var controls = () =>{
         }
         //dol
         if(keys[40]){
-            if(player.y>height-height/8){
-                if(tileOffsetY<=-32){
+            if(player.y>heightCols-heightCols/8){
+                if(tileOffsetY<=-tileSide){
                     tileOffsetY=0;
                     worldOffsetY++;
                 }
@@ -91,8 +171,8 @@ var controls = () =>{
         //desno
         if (keys[39]) {
             //console.log(player.x+player.width)
-            if(player.x+player.width>width-width/4){
-                if(tileOffsetX<=-32){
+            if(player.x+player.width>widthCols-(widthCols)/8){
+                if(tileOffsetX<=-tileSide){
                     tileOffsetX=0;
                     worldOffsetX++;
                 }
@@ -105,9 +185,9 @@ var controls = () =>{
         }
         //levo
         if (keys[37]) {
-            if(player.x<width/4){
-                if(tileOffsetX>=32){
-                    tileOffsetX=0
+            if(player.x<widthCols/8){
+                if(tileOffsetX>=tileSide){
+                    tileOffsetX=0;
                     worldOffsetX--;
                 }
                 else{
@@ -119,94 +199,27 @@ var controls = () =>{
         }
     }
 };
-var initGame = function(){
-    initCanvas();
-    initPlayer();
-    initTiles();
-    createTileMap();
+function update(){
+    //preverjamo premikanje
+    controls();
 
-    function initCanvas() {
-        canvas=document.getElementById("canvas");
-        ctx = canvas.getContext("2d");
-        ctx.canvas.width  = window.innerWidth;
-        ctx.canvas.height = window.innerHeight;
-        width=canvas.width;
-        height=canvas.height;
-        canvas.tabIndex=1
-        widthCols=Math.floor(width/32)
-        heightCols=Math.floor(height/32)
-    }
-    function initPlayer(){
-        player = {
-            color: "red",
-            x : width/2,
-            y : height/2,
-            width : 15,
-            height : 15,
-            speed : 4,
-            jumping: false,
-            draw: function(){
-                ctx.fillStyle=this.color;
-                ctx.fillRect(this.x,this.y,this.width,this.height)
-            }
-        }
-    }
+    //izris na canvas
+    draw();
 
-    function createTileMap(){
-        for(var i=0; i<100; i++){
-            if(i===heightCols){
-                map.push(Array.apply(null, Array(100)).map(Number.prototype.valueOf,1))
-            }
-            else{
-                map.push(Array.apply(null, Array(100)).map(Number.prototype.valueOf,0))
-            }
-        }
-        map[3][5]=1
-        for(var i=0; i<7; i++){
-            map[10][5+i]=0
-        }
-        for(var i=0; i<7; i++){
-            map[10][15+i]=0
-        }
-        console.log(map)
-    }
-    return {
-        initCanvas
-    };
-    function initTiles(){
-        var sky = new Image();
-        sky.src="http://localhost:63342/st/CELTRA/imgs/sky-temp.png"
-        tiles.push(sky)
-        var ground = new Image();
-        ground.src="http://localhost:63342/st/CELTRA/imgs/ground-tile.png"
-        tiles.push(ground)
-    }
-};
-/* IZRIS VSEGA */
+    console.log(player.x,player.y)
+    requestAnimationFrame(update);
+}
 
-var draw = function (){
-    ctx.clearRect(0,0, width, height);
-    drawTileMap();
-    player.draw();
+function handleWindowResize() {
+    //V primeru da uporabnik spreminja dimenzije okna, se parametri spreminjajo
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    init.initCanvas;
+    draw();
+}
 
-    function drawTileMap(){
-        //+3, ker izrisujemo en tile prej(levo), ker indeksiramo z 0, in tile za tem
-        posX=-32;
-        posY=-32;
-        for(var i=worldOffsetY; i<heightCols+worldOffsetY+3; i++){
-            for(var j=worldOffsetX; j<widthCols+worldOffsetX+3; j++){
-                if(map[i][j]===1){
-                    ctx.drawImage(tiles[1],posX+tileOffsetX,posY+tileOffsetY,32,32);
-                }
-                else{
-                    ctx.drawImage(tiles[0],posX+tileOffsetX,posY+tileOffsetY,32,32);
-                }
-                posX+=32
-            }
-            posX=-32;
-            posY+=32
-        }
-    }
-};
+
+
+
 
 console.log(Math.floor(document.getElementById("canvas").offsetWidth))
