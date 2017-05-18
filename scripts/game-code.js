@@ -8,6 +8,7 @@ let canvas, ctx, width, height, player,
 
 const keys = [];
 const map = [];
+const army = [];
 const tiles = [];
 let widthCols = -1;
 let heightCols = -1;
@@ -26,12 +27,17 @@ document.body.addEventListener("keyup", function(e) {
     keys[e.keyCode] = false;
 });
 
+function makeEnemy() {
+    initEnemy();
+}
 const initGame = function(){
     initCanvas();
     initPlayer();
     initTiles();
     createTileMap();
+    setHudParams();
     makeMapDynamic();
+    makeEnemy();
     generateRandomPowerUps();
 
     function initCanvas() {
@@ -114,26 +120,29 @@ const initGame = function(){
     function initTiles(){
 
         let sky = new Image();
-        sky.src="http://localhost:63342/st/CELTRA/imgs/sky-temp.png"
+        sky.src="../CELTRA/imgs/sky-temp.png"
         tiles.push(sky)
         let ground = new Image();
-        ground.src="http://localhost:63342/st/CELTRA/imgs/ground-tile.png"
+        ground.src="../CELTRA/imgs/ground-tile.png"
         tiles.push(ground)
         let walk1 = new Image();
-        walk1.src="http://localhost:63342/st/CELTRA/imgs/walk1.png"
+        walk1.src="../CELTRA/imgs/walk1.png"
         tiles.push(walk1)
         let walk2 = new Image();
-        walk2.src="http://localhost:63342/st/CELTRA/imgs/walk2.png"
+        walk2.src="../CELTRA/imgs/walk2.png"
         tiles.push(walk2)
         let walk3 = new Image();
-        walk3.src="http://localhost:63342/st/CELTRA/imgs/walk3.png"
+        walk3.src="../CELTRA/imgs/walk3.png"
         tiles.push(walk3)
         let walk4 = new Image();
-        walk4.src="http://localhost:63342/st/CELTRA/imgs/walk4.png"
+        walk4.src="../CELTRA/imgs/walk4.png"
         tiles.push(walk4)
         let moon = new Image();
-        moon.src="http://localhost:63342/st/CELTRA/imgs/moon-temp.png"
+        moon.src="../CELTRA/imgs/moon-temp.png"
         tiles.push(moon)
+        let sun = new Image();
+        sun.src="../CELTRA/imgs/sun.png"
+        tiles.push(sun)
 
     }
     //player size, player speed, player jump
@@ -174,10 +183,20 @@ const initGame = function(){
         let distBetwPowerUps=30;
         for(let i=0; i<numOfPowerUps; i++){
             let rHeight=calculateRandomHeight();
-            map[rHeight][distBetwPowerUps]=2;
+            if(!checkIfIsFloor(rHeight,distBetwPowerUps))
+                map[rHeight][distBetwPowerUps]=2;
             distBetwPowerUps+=30;
         }
+        let numOfCoins=420;
+        let distBetwCoin=15;
+        for(let j=0; j<numOfCoins; j++){
+            let rHeight=calculateRandomHeight();
+            if(!checkIfIsFloor(rHeight,distBetwCoin))
+                map[rHeight][distBetwCoin]=3;
+            distBetwCoin+=30;
+        }
     }
+
 
     function calculateRandomIntervalForPlatforms(){
         return Math.floor((Math.random() * 15)+1);
@@ -198,6 +217,9 @@ const draw = function (){
     ctx.clearRect(0,0, width, height);
     drawTileMap();
     player.draw();
+    enemy.draw();
+
+
 
 
     function drawTileMap(){
@@ -211,6 +233,9 @@ const draw = function (){
                 }
                 else if(map[i][j]===2){
                     ctx.drawImage(tiles[6],posX+tileOffsetX,posY+tileOffsetY,tileSide,tileSide);
+                }
+                else if(map[i][j]===3){
+                    ctx.drawImage(tiles[7],posX+tileOffsetX,posY+tileOffsetY,tileSide,tileSide);
                 }
                 else{
                     ctx.drawImage(tiles[0],posX+tileOffsetX,posY+tileOffsetY,tileSide,tileSide);
@@ -226,6 +251,54 @@ function init(){
     initGame();
     draw();
 }
+
+
+
+function initEnemy(){
+    enemy = {
+        color: "white",
+        x : widthCols/3,
+        y : heightCols/3,
+        width : generateSize(),
+        height : generateSize(),
+        speed : generateSpeed(),
+        jumping: false,
+        walkFrame: 0,
+        downtime: 9,
+        bounced:false,
+        draw: function(){
+            ctx.fillStyle = this.color;
+            ctx.fillRect(Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
+                Math.floor(this.height*tileSide))
+        },
+        movement: function () {
+
+            if(this.bounced){
+                this.y-=this.speed;
+                this.downtime+=this.speed;
+            }
+            if(this.downtime>15){
+                this.bounced=false;
+            }
+            if(this.downtime>0 && !this.bounced){
+                this.y+=this.speed;
+                this.downtime-=this.speed;
+                console.log("no")
+            }
+            else if(this.downtime<=0){
+                this.bounced=true;
+            }
+        }
+    }
+    function generateSpeed(){
+        return (Math.random() * 1)+0.1
+    }
+    function generateSize(){
+        return (Math.random() * 4)+1
+    }
+    return enemy;
+}
+
 
 const controls = () =>{
     if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
@@ -305,9 +378,12 @@ const controls = () =>{
 function update(){
     //preverjamo premikanje
     controls();
+    enemy.movement()
+
+
 
     //izris na canvas
-    collisionDetection()
+    //collisionDetection()
     draw();
 
     //suconsole.log(player.x,player.y)
@@ -322,18 +398,16 @@ function handleWindowResize() {
     draw();
 }
 
-function collisionDetection(){
-    for(let c=0; c<heightCols; c++){
-        for(let r=0; r<widthCols; r++){
-            let b =map[c][r]
-            if(b==1){
 
-                if(Math.ceil(player.y)===c && Math.ceil(player.x)===r){
-                    console.log(c,r)
-                }
-            }
+//HUD ELEMENTS
 
-        }
-    }
+function setHudParams(){
+    hp = document.getElementById("hp");
+    coin = document.getElementById("coin");
+    hp.innerHTML=3;
+    coin.innerHTML=0;
 }
 
+function checkIfIsFloor(i,j){
+    return map[i][j]===1;
+}
