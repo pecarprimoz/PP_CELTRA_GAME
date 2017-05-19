@@ -67,7 +67,7 @@ const initGame = function(){
             y : heightCols/2,
             width : 1,
             height : 1,
-            speed : 0.2,
+            speed : 0.02,
             jumping: false,
             walkFrame: 0,
             draw: function(){
@@ -421,18 +421,22 @@ function checkIfIsFloor(i,j){
 function collisionDetectionSpecific(){
     let tmp = player;
 
-
-    console.log(Math.floor(player.y )+worldOffsetY,Math.floor(player.x)+worldOffsetX);
-    if(checkIfIsFloor(Math.ceil(player.y + player.height + tileOffsetY/tileSide)+worldOffsetY,Math.ceil(player.x + tileOffsetX/tileSide)+worldOffsetX+1)){
-
+    console.log(player.x,player.y)
+    if(checkIfIsFloor(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX) ||
+        checkIfIsFloor(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide)+worldOffsetX) ||
+        checkIfIsFloor(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width)+worldOffsetX)){
+        console.log(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX)
         player.y=tmp.y-tmp.speed;
-        console.log("ceil")
         return true;
     }
 
-    else if(checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY), Math.floor(player.x)+worldOffsetX+1)){
+    else if(checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX) ||
+        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + tileOffsetX/tileSide+player.width)+worldOffsetX) ||
+        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + tileOffsetX/tileSide)+worldOffsetX)){
+        console.log(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + tileOffsetX/tileSide-player.width/2)+worldOffsetX)
+
         player.y=tmp.y+tmp.speed;
-        console.log("floor")
+        
         return true;
     }
 
