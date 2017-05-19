@@ -87,7 +87,7 @@ const initGame = function(){
                 map.push(Array.apply(null, Array(100)).map(Number.prototype.valueOf,0))
             }
         }
-        map[3][5]=1;
+        map[7][5]=1;
         const preSet = [
             [0,0,1,0,0],
             [0,1,1,1,0],
@@ -105,13 +105,13 @@ const initGame = function(){
             putWhereX+=20
         }
 
-
+        /*
         for(let i=0; i<7; i++){
             map[10][5+i]=1
         }
         for(let i=0; i<7; i++){
             map[10][15+i]=0
-        }
+        }*/
         //console.log(map)
     }
     return {
@@ -384,7 +384,10 @@ const controls = () =>{
 function update(){
     //preverjamo premikanje
     controls();
-    collisionDetectionSpecific()
+    let tmp = player;
+    if(collisionDetectionSpecific()){
+        player.y=tmp.y-tmp.speed;
+    }
     //enemy.movement()
 
 
@@ -419,9 +422,15 @@ function checkIfIsFloor(i,j){
 }
 
 function collisionDetectionSpecific(){
-    console.log(Math.floor(player.y + player.height)+worldOffsetX,Math.floor(player.x))
+ 
+    console.log(Math.floor(player.y )+worldOffsetY,Math.floor(player.x)+worldOffsetX);
     if(checkIfIsFloor(Math.floor(player.y + player.height)+worldOffsetY,Math.floor(player.x)+worldOffsetX)){
-        console.log("true")
+        console.log("floor")
+        return true;
+    }
+    if(checkIfIsFloor(Math.ceil(player.y + player.height)+worldOffsetY,Math.ceil(player.x)+worldOffsetX)){
+        console.log("ceil")
+        return true;
     }
 
 }

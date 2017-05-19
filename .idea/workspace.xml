@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d7ff7c02-0c9e-45e5-8d7a-88766c243050" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/game-code.js" afterPath="$PROJECT_DIR$/scripts/game-code.js" />
     </list>
     <ignored path="PP_CELTRA_GAME.iws" />
@@ -29,8 +28,8 @@
       <file leaf-file-name="game-code.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/game-code.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="595">
-              <caret line="414" column="1" selection-start-line="414" selection-start-column="1" selection-end-line="414" selection-end-column="1" />
+            <state relative-caret-position="612">
+              <caret line="424" column="1" selection-start-line="424" selection-start-column="1" selection-end-line="424" selection-end-column="1" />
               <folding />
             </state>
           </provider>
@@ -274,12 +273,12 @@
       <workItem from="1495104119362" duration="336000" />
       <workItem from="1495104480972" duration="5336000" />
       <workItem from="1495129198249" duration="121000" />
-      <workItem from="1495217435292" duration="7495000" />
+      <workItem from="1495217435292" duration="8774000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="13288000" />
+    <option name="totallyTimeSpent" value="14567000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -405,8 +404,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/game-code.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="414" column="1" selection-start-line="414" selection-start-column="1" selection-end-line="414" selection-end-column="1" />
+        <state relative-caret-position="612">
+          <caret line="424" column="1" selection-start-line="424" selection-start-column="1" selection-end-line="424" selection-end-column="1" />
           <folding />
         </state>
       </provider>
