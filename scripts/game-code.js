@@ -384,8 +384,8 @@ const controls = () =>{
 function update(){
     //preverjamo premikanje
     controls();
+    collisionDetectionSpecific()
     //enemy.movement()
-    allColisions();
 
 
     //izris na canvas
@@ -417,35 +417,12 @@ function setHudParams(){
 function checkIfIsFloor(i,j){
     return map[i][j]===1;
 }
-function allColisions(){
-    for(let i=0; i<heightCols; i++){
-        for(let j=0; j<widthCols+worldOffsetX; j++){
-            if(collisionDetectionSpecific(i,j)){
-              //  console.log("works?")
-            }
-        }
-    }
-}
-function collisionDetectionSpecific(h,w){
-    if(!checkIfIsFloor(h,w)){
-        return;
-    }
-    let a = {
-        left:Math.floor(player.x),
-        top:Math.floor(player.y),
-        right:Math.floor(player.x+tileSide),
-        bottom:Math.floor(player.y+tileSide)
-    };
 
-    let b= {
-        left: w,
-        top:  h,
-        right: w+tileSide,
-        bottom: h+tileSide
-    };
-    //console.log(a)
-    x_overlaps = (a.left < b.right) && (a.right > b.left)
-    y_overlaps = (a.top < b.bottom) && (a.bottom > b.top)
-    return x_overlaps && y_overlaps;
+function collisionDetectionSpecific(){
+    console.log(Math.floor(player.y + player.height)+worldOffsetX,Math.floor(player.x))
+    if(checkIfIsFloor(Math.floor(player.y + player.height)+worldOffsetY,Math.floor(player.x)+worldOffsetX)){
+        console.log("true")
+    }
+
 }
 
