@@ -121,28 +121,28 @@ const initGame = function(){
     function initTiles(){
 
         let sky = new Image();
-        sky.src="../CELTRA/imgs/sky-temp.png"
+        sky.src="./imgs/sky-temp.png"
         tiles.push(sky)
         let ground = new Image();
-        ground.src="../CELTRA/imgs/ground-tile.png"
+        ground.src="./imgs/ground-tile.png"
         tiles.push(ground)
         let walk1 = new Image();
-        walk1.src="../CELTRA/imgs/walk1.png"
+        walk1.src="./imgs/walk1.png"
         tiles.push(walk1)
         let walk2 = new Image();
-        walk2.src="../CELTRA/imgs/walk2.png"
+        walk2.src="./imgs/walk2.png"
         tiles.push(walk2)
         let walk3 = new Image();
-        walk3.src="../CELTRA/imgs/walk3.png"
+        walk3.src="./imgs/walk3.png"
         tiles.push(walk3)
         let walk4 = new Image();
-        walk4.src="../CELTRA/imgs/walk4.png"
+        walk4.src="./imgs/walk4.png"
         tiles.push(walk4)
         let moon = new Image();
-        moon.src="../CELTRA/imgs/moon-temp.png"
+        moon.src="./imgs/moon-temp.png"
         tiles.push(moon)
         let sun = new Image();
-        sun.src="../CELTRA/imgs/sun.png"
+        sun.src="./imgs/sun.png"
         tiles.push(sun)
 
     }
@@ -220,9 +220,7 @@ const draw = function (){
     drawTileMap();
     player.draw();
     //enemy.draw();
-    if(map[5][Math.floor(player.x+worldOffsetX)] instanceof Object){
-        console.log(worldOffsetX)
-    }
+
 
 
 
@@ -349,14 +347,14 @@ const controls = () =>{
         if (keys[39]) {
 
             //console.log(player.x+player.width)
-            if(player.x+player.width>widthCols-(widthCols)/8){
+            if(player.x+player.width>(canvas.width/widthCols)-widthCols/8){
                 if(tileOffsetX<=tileSide){
                     //console.log("test")
                     tileOffsetX=0;
                     worldOffsetX++;
                 }
                 else{
-                    tileOffsetX-=player.speed;
+                    tileOffsetX-=player.speed*tileSide;
                 }
             }
             else
@@ -418,10 +416,9 @@ function checkIfIsFloor(i,j){
 }
 function allColisions(){
     for(let i=0; i<heightCols; i++){
-        for(let j=0; j<widthCols; j++){
-
+        for(let j=0; j<widthCols+worldOffsetX; j++){
             if(collisionDetectionSpecific(i,j)){
-                console.log("works?")
+              //  console.log("works?")
             }
         }
     }
@@ -431,21 +428,21 @@ function collisionDetectionSpecific(h,w){
         return;
     }
     let a = {
-        left:player.x,
-        top:player.y,
-        right:player.x+tileSide,
-        bottom:player.y+tileSide
+        left:Math.floor(player.x),
+        top:Math.floor(player.y),
+        right:Math.floor(player.x+tileSide),
+        bottom:Math.floor(player.y+tileSide)
     };
 
     let b= {
-        left: w*tileSide,
-        top:  h*tileSide,
-        right: w*tileSide+tileSide,
-        bottom: h*tileSide+tileSide
-    }
+        left: w,
+        top:  h,
+        right: w+tileSide,
+        bottom: h+tileSide
+    };
+    //console.log(a)
     x_overlaps = (a.left < b.right) && (a.right > b.left)
     y_overlaps = (a.top < b.bottom) && (a.bottom > b.top)
-    
     return x_overlaps && y_overlaps;
 }
 
