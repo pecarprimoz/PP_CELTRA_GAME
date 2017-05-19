@@ -37,8 +37,9 @@ const initGame = function(){
     createTileMap();
     setHudParams();
     makeMapDynamic();
-    makeEnemy();
+    //makeEnemy();
     generateRandomPowerUps();
+
 
     function initCanvas() {
         canvas=document.getElementById("canvas");
@@ -96,7 +97,7 @@ const initGame = function(){
             for(let i=0; i<preSet.length; i++){
                 for(let j=0; j<preSet[i].length;j++){
                     if(preSet[i][j]==1){
-                        console.log(putWhereX)
+                        //console.log(putWhereX)
                         map[11+i][putWhereX+j]=1
                     }
                 }
@@ -158,6 +159,7 @@ const initGame = function(){
             }
             distanceBetweenWalls+=30+calculateRandomIntervalForPlatforms();
         }
+
         let numberofRandomPlatforms=100;
         let distanceBetweenPlatforms=40;
         for(let x=0; x<numberofRandomPlatforms; x++){
@@ -217,7 +219,10 @@ const draw = function (){
     ctx.clearRect(0,0, width, height);
     drawTileMap();
     player.draw();
-    enemy.draw();
+    //enemy.draw();
+    if(map[5][Math.floor(player.x+worldOffsetX)] instanceof Object){
+        console.log(worldOffsetX)
+    }
 
 
 
@@ -283,7 +288,7 @@ function initEnemy(){
             if(this.downtime>0 && !this.bounced){
                 this.y+=this.speed;
                 this.downtime-=this.speed;
-                console.log("no")
+               // console.log("no")
             }
             else if(this.downtime<=0){
                 this.bounced=true;
@@ -346,7 +351,7 @@ const controls = () =>{
             //console.log(player.x+player.width)
             if(player.x+player.width>widthCols-(widthCols)/8){
                 if(tileOffsetX<=tileSide){
-                    console.log("test")
+                    //console.log("test")
                     tileOffsetX=0;
                     worldOffsetX++;
                 }
@@ -378,8 +383,8 @@ const controls = () =>{
 function update(){
     //preverjamo premikanje
     controls();
-    enemy.movement()
-
+    //enemy.movement()
+    allColisions();
 
 
     //izris na canvas
@@ -411,3 +416,36 @@ function setHudParams(){
 function checkIfIsFloor(i,j){
     return map[i][j]===1;
 }
+function allColisions(){
+    for(let i=0; i<heightCols; i++){
+        for(let j=0; j<widthCols; j++){
+
+            if(collisionDetectionSpecific(i,j)){
+                console.log("works?")
+            }
+        }
+    }
+}
+function collisionDetectionSpecific(h,w){
+    if(!checkIfIsFloor(h,w)){
+        return;
+    }
+    let a = {
+        left:player.x,
+        top:player.y,
+        right:player.x+tileSide,
+        bottom:player.y+tileSide
+    };
+
+    let b= {
+        left: w*tileSide,
+        top:  h*tileSide,
+        right: w*tileSide+tileSide,
+        bottom: h*tileSide+tileSide
+    }
+    x_overlaps = (a.left < b.right) && (a.right > b.left)
+    y_overlaps = (a.top < b.bottom) && (a.bottom > b.top)
+    
+    return x_overlaps && y_overlaps;
+}
+
