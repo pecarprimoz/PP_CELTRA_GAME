@@ -63,7 +63,7 @@ const initGame = function(){
     function initPlayer(){
         player = {
             color: "red",
-            x : widthCols/2,
+            x : widthCols/4,
             y : heightCols/2,
             width : 1,
             height : 1,
@@ -229,8 +229,8 @@ const draw = function (){
         //+3, ker izrisujemo en tile prej(levo), ker indeksiramo z 0, in tile za tem
         posX=-Math.floor(tileSide);
         posY=-Math.floor(tileSide);
-        for(let i=worldOffsetY; i<heightCols+worldOffsetY+3; i++){
-            for(let j=worldOffsetX; j<widthCols+worldOffsetX+3; j++){
+        for(let i=worldOffsetY; i<heightCols+worldOffsetY+4; i++){
+            for(let j=worldOffsetX; j<widthCols+worldOffsetX+4; j++){
                 if(map[i][j]===1){
                     ctx.drawImage(tiles[1],posX+tileOffsetX,posY+tileOffsetY,tileSide,tileSide);
                 }
@@ -348,14 +348,16 @@ const controls = () =>{
 
             //console.log(player.x+player.width)
             if(player.x+player.width>(canvas.width/widthCols)-widthCols/8){
-                if(tileOffsetX<=tileSide){
-                    //console.log("test")
+                if(Math.abs(tileOffsetX)>=tileSide){
+
                     tileOffsetX=0;
                     worldOffsetX++;
                 }
                 else{
                     tileOffsetX-=player.speed*tileSide;
+
                 }
+
             }
             else
                 player.x+=player.speed;
@@ -371,6 +373,7 @@ const controls = () =>{
                 else{
                     tileOffsetX+=player.speed*tileSide;
                 }
+
             }
             else
                 player.x-=player.speed;
