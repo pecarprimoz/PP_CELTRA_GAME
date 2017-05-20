@@ -29,7 +29,7 @@
         <entry file="file://$PROJECT_DIR$/scripts/game-code.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="364">
-              <caret line="435" column="5" selection-start-line="435" selection-start-column="5" selection-end-line="435" selection-end-column="5" />
+              <caret line="429" column="76" selection-start-line="429" selection-start-column="76" selection-end-line="429" selection-end-column="76" />
               <folding />
             </state>
           </provider>
@@ -273,12 +273,12 @@
       <workItem from="1495104119362" duration="336000" />
       <workItem from="1495104480972" duration="5336000" />
       <workItem from="1495129198249" duration="121000" />
-      <workItem from="1495217435292" duration="22148000" />
+      <workItem from="1495217435292" duration="22401000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="27941000" />
+    <option name="totallyTimeSpent" value="28194000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -405,7 +405,7 @@
     <entry file="file://$PROJECT_DIR$/scripts/game-code.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="364">
-          <caret line="435" column="5" selection-start-line="435" selection-start-column="5" selection-end-line="435" selection-end-column="5" />
+          <caret line="429" column="76" selection-start-line="429" selection-start-column="76" selection-end-line="429" selection-end-column="76" />
           <folding />
         </state>
       </provider>

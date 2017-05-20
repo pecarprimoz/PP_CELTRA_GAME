@@ -389,6 +389,7 @@ const controls = () =>{
 function update(){
     //preverjamo premikanje
     controls();
+    collisionDetectionSpecificDown();
 
     //enemy.movement()
 
@@ -426,8 +427,8 @@ function collisionDetectionSpecificUp(){
     let tmp = player;
     if(
 
-        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX) ||
-        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
+        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX) ||
+        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY-.15 + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
         //console.log(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + tileOffsetX/tileSide-player.width/2)+worldOffsetX)
         console.log(2)
         player.y=tmp.y+tmp.speed;
