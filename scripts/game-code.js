@@ -4,15 +4,19 @@ let canvas, ctx, width, height, player,
     worldOffsetY = 0,
     tileOffsetY = 0,
     tileSide = 0,
-    gravity = 0.2;
+    gravity = 0.2,
+    player_hp=3,
+    num_of_platforms=5,
+    player_coins=0;
 
 
 const keys = [];
 const map = [];
-const army = [];
+let powerJumps=5;
 const tiles = [];
 let widthCols = -1;
 let heightCols = -1;
+let nextJumpPossible = false;
 window.onload=init;
 /* EVENT LISTENERJI ZA SCREEN ROTATE IN KEY KONTROLE */
 window.addEventListener("load",function(){
@@ -30,6 +34,10 @@ document.body.addEventListener("keyup", function(e) {
 
 function makeEnemy() {
     initEnemy();
+}
+function restartCurrentlevel(){
+    initPlayer();
+    setHudParams();
 }
 const initGame = function(){
     initCanvas();
@@ -60,24 +68,6 @@ const initGame = function(){
 
         widthCols=tileSide;
         heightCols=Math.ceil(height/tileSide);
-    }
-    function initPlayer(){
-        player = {
-            color: "red",
-            x : widthCols/4,
-            y : heightCols/2,
-            width : 1,
-            height : 1,
-            speed : 0.15,
-            jumping: false,
-            numofjumps: 2,
-            walkFrame: 0,
-            draw: function(){
-                ctx.fillStyle = this.color;
-                ctx.fillRect(Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
-                Math.floor(this.height*tileSide))
-            }
-        }
     }
 
     function createTileMap(){
@@ -218,6 +208,24 @@ const initGame = function(){
     }
 
 };
+function initPlayer(){
+    player = {
+        color: "red",
+        x : widthCols/4,
+        y : heightCols/2,
+        width : 1,
+        height : 1,
+        speed : 0.15,
+        jumping: false,
+        numofjumps: powerJumps,
+        walkFrame: 0,
+        draw: function(){
+            ctx.fillStyle = this.color;
+            ctx.fillRect(Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
+                Math.floor(this.height*tileSide))
+        }
+    }
+}
 
 
 
@@ -375,6 +383,7 @@ const controls = () =>{
                 player.x+=player.speed;
                 player.walkFrame++;
         }
+
         //levo
         if (keys[37]) {
             collisionDetectionSpecificLeft();
@@ -394,12 +403,11 @@ const controls = () =>{
         }
     }
 };
-
+let canBuild=true;
 function update(){
 
     //preverjamo premikanje
     //console.log(player.y)
-
 
     controls();
     if(collisionDetectionSpecificUp()){
@@ -409,36 +417,48 @@ function update(){
 
     if(collisionDetectionSpecificDown()){
     // console.log("done")
+        nextJumpPossible=false;
+        canBuild=false;
         player.jumping=false;
-        player.numofjumps=2;
+        player.numofjumps=powerJumps;
         //kle mas neko foro z + ali - ce bo kej narobe
         gravity=player.speed
-        player.y-=player.speed;
+    }
+    if(!collisionDetectionSpecificDownDontChange() && !player.jumping){
+        player.jumping=true;
+        canBuild=true
     }
     //console.log(collisionDetectionSpecificDownDontChange())
-    if(!collisionDetectionSpecificDownDontChange() && player.jumping && player.numofjumps>0){
-        if(keys[38] || keys[32]){
-            console.log("?")
-            gravity=-0.6;
-
-            console.log(player.numofjumps)
-            player.numofjumps--;
-            //console.log("jump")
-        }
+    if(!collisionDetectionSpecificDownDontChange() && player.numofjumps>0 && !keys[38]){
+        nextJumpPossible=true;
+        canBuild=true
+    }
+    if(player.jumping && nextJumpPossible && keys[38] && player.numofjumps>0){
+        canBuild=true
+        console.log("test")
+        console.log("?")
+        gravity=-0.5;
+        console.log(player.numofjumps)
+        player.numofjumps--;
+        //console.log("jump")
     }
 
 
     if(collisionDetectionSpecificDownDontChange() && !player.jumping){
-
         player.y=player.y-player.speed;
-        if(keys[38] || keys[32]){
+        if(keys[38]){
+            canBuild=true
             console.log("fist")
-            gravity=-0.6;
+            gravity=-0.5;
             player.jumping=true;
             player.numofjumps--;
            // console.log(player.numofjumps)
             //console.log("jump")
         }
+    }
+    if(keys[32] && canBuild){
+        platformCreator();
+        canBuild=false
     }
 
     if(player.jumping ){
@@ -453,6 +473,7 @@ function update(){
     //izris na canvas
     //collisionDetection()
     draw();
+    checkifdied();
 
     //suconsole.log(player.x,player.y)
     requestAnimationFrame(update);
@@ -474,8 +495,10 @@ function handleWindowResize() {
 function setHudParams(){
     hp = document.getElementById("hp");
     coin = document.getElementById("coin");
-    hp.innerHTML=3;
-    coin.innerHTML=0;
+    mytiles= document.getElementById("plat")
+    mytiles.innerHTML=num_of_platforms;
+    hp.innerHTML=player_hp;
+    coin.innerHTML=player_coins;
 }
 
 function checkIfIsFloor(i,j){
@@ -594,7 +617,27 @@ function collisionDetectionSpecificRight(){
     }
     return false;
 }
+function checkifdied(){
+    if(Math.floor(player.y)>heightCols){
+        player_hp--;
+        hp.innerHTML=player_hp;
+        restartCurrentlevel();
+    }
+}
+function platformCreator(){
+    if(num_of_platforms>0){
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)]=1
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+2]=1
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)-1]=1
+        num_of_platforms--;
+        mytiles.innerHTML=parseInt(mytiles.innerHTML)-1;
+        console.log(num_of_platforms)
+        return;
+    }
 
+}
 
 /*
 function collisionDetectionSpecific(){
