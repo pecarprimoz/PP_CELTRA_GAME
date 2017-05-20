@@ -3,7 +3,8 @@ let canvas, ctx, width, height, player,
     tileOffsetX = 0,
     worldOffsetY = 0,
     tileOffsetY = 0,
-    tileSide = 0;
+    tileSide = 0,
+    gravity = 0.2;
 
 
 const keys = [];
@@ -105,6 +106,9 @@ const initGame = function(){
                 }
             }
             putWhereX+=20
+        }
+        for(let h=0; h<100000; h++){
+                map[1][h]=1;
         }
 
         /*
@@ -315,10 +319,12 @@ const controls = () =>{
 
     //space/up, jump
     function keyboardControls() {
+        /*
         if(keys[38] || keys[32]){
-            collisionDetectionSpecificUp();
+            collisionDetectionSpecificUp();*/
+
             //preverjamo ali je čez 1/4 ekrana
-            if(player.y<heightCols/8){
+            /*if(player.y<heightCols/8){
 
                 if(worldOffsetY!==0 && tileOffsetY>=tileSide){
                     tileOffsetY=0;
@@ -329,13 +335,14 @@ const controls = () =>{
                     tileOffsetY+=player.speed;
                 }
             }
-            else
-                player.y-=player.speed;
-        }
+            else*/
+
+
+        //}
         //dol
-        if(keys[40]){
-            collisionDetectionSpecificDown();
-            if(player.y>heightCols-heightCols/8){
+        /*if(keys[40]){
+            collisionDetectionSpecificDown();*/
+           /* if(player.y>heightCols-heightCols/8){
                 if(tileOffsetY<=-tileSide){
                     tileOffsetY=0;
                     worldOffsetY++;
@@ -344,14 +351,14 @@ const controls = () =>{
                     tileOffsetY-=player.speed;
                 }
             }
-            else
+         /*   else
                 player.y+=player.speed;
-        }
+        }*/
         //desno
         if (keys[39]) {
             collisionDetectionSpecificRight();
             //console.log(player.x+player.width)
-            if(player.x+player.width>(canvas.width/widthCols)-widthCols/8){
+            if(player.x+player.width>(canvas.width/widthCols)-widthCols/4){
                 if(Math.abs(tileOffsetX)>=tileSide){
 
                     tileOffsetX=0;
@@ -370,7 +377,7 @@ const controls = () =>{
         //levo
         if (keys[37]) {
             collisionDetectionSpecificLeft();
-            if(player.x<widthCols/8){
+            if(player.x<widthCols/4){
                 if(tileOffsetX>=tileSide){
                     tileOffsetX=0;
                     worldOffsetX--;
@@ -386,9 +393,42 @@ const controls = () =>{
         }
     }
 };
+
 function update(){
     //preverjamo premikanje
+    //console.log(player.y)
+
     controls();
+    if(collisionDetectionSpecificUp()){
+        gravity+=0.3;
+        player.y+=player.speed;
+    }
+
+    if(collisionDetectionSpecificDown()){
+     console.log("done")
+        player.jumping=false;
+
+
+        //kle mas neko foro z + ali - ce bo kej narobe
+        gravity=player.speed;
+    }
+    if(collisionDetectionSpecificDownDontChange() && !player.jumping){
+        player.y=player.y-player.speed;
+        if(keys[38] || keys[32]){
+            console.log("yup")
+            gravity=-0.6;
+            player.jumping=true;
+            //console.log("jump")
+        }
+    }
+
+
+    if(player.jumping ){
+        console.log("fuck")
+        gravity+=0.03
+    }
+        player.y+=gravity
+
 
     //enemy.movement()
 
@@ -400,6 +440,7 @@ function update(){
     //suconsole.log(player.x,player.y)
     requestAnimationFrame(update);
 }
+
 
 function handleWindowResize() {
     //V primeru da uporabnik spreminja dimenzije okna, se parametri spreminjajo
@@ -424,13 +465,15 @@ function checkIfIsFloor(i,j){
 }
 function collisionDetectionSpecificUp(){
     let tmp = player;
+
     if(
 
-        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY-0.15  + Math.abs(tileOffsetY/tileSide)), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX) ||
-        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY-0.15 + Math.abs(tileOffsetY/tileSide)), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
+        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX) ||
+        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
         //console.log(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + tileOffsetX/tileSide-player.width/2)+worldOffsetX)
-        console.log(2)
+        //console.log(2)
         player.y=tmp.y+tmp.speed;
+
 
         return true;
     }
@@ -440,33 +483,49 @@ function collisionDetectionSpecificUp(){
 function collisionDetectionSpecificDown(){
     let tmp = player;
     if(
-        checkIfIsFloor(Math.ceil(player.y + player.height + Math.abs(tileOffsetY/tileSide) +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX) ||
-        checkIfIsFloor(Math.ceil(player.y + player.height + Math.abs(tileOffsetY/tileSide) +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+        checkIfIsFloor(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX) ||
+        checkIfIsFloor(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
         //console.log(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX)
-        console.log(1)
+        //console.log(1)
         player.y=tmp.y-tmp.speed;
+        return true;
+    }
+
+}
+
+function collisionDetectionSpecificDownDontChange(){
+    let tmp = player;
+    if(
+        checkIfIsFloor(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX) ||
+        checkIfIsFloor(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+        //console.log(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX)
+        //console.log(1)
         return true;
     }
 
 }
 function collisionDetectionSpecificLeft(){
     let tmp = player;
+    //console.log(tileOffsetX/tileSide)
+    //
     if(
-        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + Math.abs(tileOffsetY/tileSide)), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))||
-        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + Math.abs(tileOffsetY/tileSide))+1, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
-        console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
-        console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
+        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))||
+        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
+        //console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
+        //console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
         player.x = tmp.x + tmp.speed;
         return true;
     }
 }
 function collisionDetectionSpecificRight(){
+    //console.log(tileOffsetX/tileSide)
+
     let tmp = player;
     if(
-        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + Math.abs(tileOffsetY/tileSide)), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))||
-        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + Math.abs(tileOffsetY/tileSide))+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
-        console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
-        console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
+        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))||
+        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
+        //console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
+        //console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
         player.x = tmp.x - tmp.speed;
         return true;
     }
