@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d7ff7c02-0c9e-45e5-8d7a-88766c243050" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/game-code.js" afterPath="$PROJECT_DIR$/scripts/game-code.js" />
     </list>
@@ -29,8 +30,8 @@
       <file leaf-file-name="game-code.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/game-code.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="631">
-              <caret line="436" column="21" selection-start-line="436" selection-start-column="21" selection-end-line="436" selection-end-column="21" />
+            <state relative-caret-position="444">
+              <caret line="707" column="47" selection-start-line="707" selection-start-column="47" selection-end-line="707" selection-end-column="47" />
               <folding />
             </state>
           </provider>
@@ -39,8 +40,8 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="663">
-              <caret line="39" column="40" selection-start-line="39" selection-start-column="40" selection-end-line="39" selection-end-column="40" />
+            <state relative-caret-position="756">
+              <caret line="56" column="14" selection-start-line="56" selection-start-column="14" selection-end-line="56" selection-end-column="14" />
               <folding>
                 <element signature="n#style#0;n#canvas#0;n#body#0;n#html#0;n#!!top" expanded="true" />
               </folding>
@@ -51,8 +52,8 @@
       <file leaf-file-name="userScripts.js" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/AppData/Local/Temp/Temp1_rg-seminarska-final.zip/pecarp-rg_seminarska-741e6595bbdc/scripts/user/userScripts.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="591" column="46" selection-start-line="591" selection-start-column="46" selection-end-line="591" selection-end-column="46" />
+            <state relative-caret-position="313">
+              <caret line="823" column="1" selection-start-line="823" selection-start-column="1" selection-end-line="823" selection-end-column="1" />
               <folding />
             </state>
           </provider>
@@ -66,6 +67,7 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$USER_HOME$/AppData/Local/Temp/Temp1_rg-seminarska-final.zip/pecarp-rg_seminarska-741e6595bbdc/scripts/user/userScripts.js" />
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/scripts/game-code.js" />
       </list>
@@ -302,12 +304,12 @@
       <workItem from="1495104480972" duration="5336000" />
       <workItem from="1495129198249" duration="121000" />
       <workItem from="1495217435292" duration="24092000" />
-      <workItem from="1495267496651" duration="18640000" />
+      <workItem from="1495267496651" duration="20054000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="48525000" />
+    <option name="totallyTimeSpent" value="49939000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -441,16 +443,16 @@
     </entry>
     <entry file="file://$USER_HOME$/AppData/Local/Temp/Temp1_rg-seminarska-final.zip/pecarp-rg_seminarska-741e6595bbdc/scripts/user/userScripts.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="591" column="46" selection-start-line="591" selection-start-column="46" selection-end-line="591" selection-end-column="46" />
+        <state relative-caret-position="313">
+          <caret line="823" column="1" selection-start-line="823" selection-start-column="1" selection-end-line="823" selection-end-column="1" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="39" column="40" selection-start-line="39" selection-start-column="40" selection-end-line="39" selection-end-column="40" />
+        <state relative-caret-position="756">
+          <caret line="56" column="14" selection-start-line="56" selection-start-column="14" selection-end-line="56" selection-end-column="14" />
           <folding>
             <element signature="n#style#0;n#canvas#0;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
@@ -459,8 +461,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/game-code.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="631">
-          <caret line="436" column="21" selection-start-line="436" selection-start-column="21" selection-end-line="436" selection-end-column="21" />
+        <state relative-caret-position="444">
+          <caret line="707" column="47" selection-start-line="707" selection-start-column="47" selection-end-line="707" selection-end-column="47" />
           <folding />
         </state>
       </provider>
