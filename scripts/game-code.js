@@ -32,9 +32,6 @@ document.body.addEventListener("keyup", function(e) {
     keys[e.keyCode] = false;
 });
 
-function makeEnemy() {
-    initEnemy();
-}
 function restartCurrentlevel(){
     initPlayer();
     setHudParams();
@@ -46,8 +43,8 @@ const initGame = function(){
     createTileMap();
     setHudParams();
     makeMapDynamic();
-    //makeEnemy();
     generateRandomPowerUps();
+    generateEnemy();
 
 
     function initCanvas() {
@@ -144,6 +141,9 @@ const initGame = function(){
         let sun = new Image();
         sun.src="./imgs/sun.png"
         tiles.push(sun)
+        let plpic = new Image();
+        plpic.src="./imgs/abomination.png"
+        tiles.push(plpic)
 
     }
     //player size, player speed, player jump
@@ -157,7 +157,7 @@ const initGame = function(){
             for(let j=0; j<6; j++){
                 map[height+j][distanceBetweenWalls]=1
             }
-            distanceBetweenWalls+=30+calculateRandomIntervalForPlatforms();
+            distanceBetweenWalls+=70+calculateRandomIntervalForPlatforms();
         }
 
         let numberofRandomPlatforms=100;
@@ -167,10 +167,10 @@ const initGame = function(){
             for(let y=0; y<width; y++){
                 map[heightCols][distanceBetweenPlatforms+y]=1;
             }
-            distanceBetweenPlatforms+=40+calculateRandomIntervalForPlatforms();
+            distanceBetweenPlatforms+=60+calculateRandomIntervalForPlatforms();
         }
         let numberOfFloatingPlatforms=100;
-        let distanceBetweenFloatingPlatforms=30;
+        let distanceBetweenFloatingPlatforms=25;
         for(let j=0; j<numberOfFloatingPlatforms; j++){
             let Rwidth = calculatRandomWidth();
             let Rheight = calculateRandomHeight();
@@ -179,6 +179,17 @@ const initGame = function(){
             }
             distanceBetweenFloatingPlatforms+=30+calculateRandomIntervalForPlatforms();
         }
+        let numberOfSquares=500;
+        let distanceBetweenSquares=25;
+        for(let j=0; j<numberOfSquares; j++){
+            let Rheight = calculateRandomHeight();
+            map[Rheight][distanceBetweenSquares]=1
+            map[Rheight][distanceBetweenSquares+1]=1
+            map[Rheight+1][distanceBetweenSquares]=1
+            map[Rheight+1][distanceBetweenSquares+1]=1
+            distanceBetweenSquares+=distanceBetweenSquares+calculateRandomIntervalForPlatforms();
+        }
+
     }
     function generateRandomPowerUps() {
         let numOfPowerUps=100;
@@ -201,10 +212,10 @@ const initGame = function(){
 
 
     function calculateRandomIntervalForPlatforms(){
-        return Math.floor((Math.random() * 15)+1);
+        return Math.floor((Math.random() * 5)+1);
     }
     function calculateRandomHeight() {
-        return Math.floor((Math.random() * (heightCols-8))+4);
+        return Math.floor((Math.random() * (heightCols-7))+4);
     }
     function calculatRandomWidth(){
         return Math.floor((Math.random()* (widthCols-2))+4);
@@ -223,19 +234,29 @@ function initPlayer(){
         numofjumps: powerJumps,
         walkFrame: 0,
         draw: function(){
-            ctx.fillStyle = this.color;
-            ctx.fillRect(Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
-                Math.floor(this.height*tileSide))
+            ctx.drawImage(tiles[8],Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
+                Math.floor(this.height*tileSide)+6)
         }
     }
 }
-
+function checkIfEnemyInRange(){
+    for(let i=0; i<widthCols+worldOffsetX; i++){
+        if(map[0][i] instanceof Object){
+            return map[0][i];
+        }
+    }
+}
 
 
 /* IZRIS VSEGA */
 const draw = function (){
     ctx.clearRect(0,0, width, height);
     drawTileMap();
+    let currEnemy=checkIfEnemyInRange();
+    if(currEnemy instanceof Object){
+        currEnemy.draw();
+        currEnemy.movement();
+    }
     player.draw();
     //enemy.draw();
 
@@ -272,14 +293,21 @@ function init(){
     initGame();
     draw();
 }
-
+function generateEnemy(){
+    let distanceBetweenEnemy=40;
+    let numOfEnemy=100;
+    for(let i=0 ;i<numOfEnemy; i++){
+        map[0][distanceBetweenEnemy]=initEnemy();
+        distanceBetweenEnemy+=65;
+    }
+}
 
 
 function initEnemy(){
     enemy = {
         color: "white",
-        x : widthCols/3,
-        y : heightCols/3,
+        x : widthCols-widthCols/8,
+        y : heightCols/2,
         width : generateSize(),
         height : generateSize(),
         speed : generateSpeed(),
@@ -288,8 +316,7 @@ function initEnemy(){
         downtime: 9,
         bounced:false,
         draw: function(){
-            ctx.fillStyle = this.color;
-            ctx.fillRect(Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
+            ctx.drawImage(tiles[8],Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
                 Math.floor(this.height*tileSide))
         },
         movement: function () {
@@ -310,7 +337,7 @@ function initEnemy(){
                 this.bounced=true;
             }
         }
-    }
+    };
     function generateSpeed(){
         return (Math.random() * 1)+0.1
     }
@@ -703,9 +730,16 @@ function collisionDetectionSpecificRight(){
 
 function checkifdied(){
     if(Math.floor(player.y)>heightCols){
+
         player_hp--;
         hp.innerHTML=player_hp;
         restartCurrentlevel();
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)]=1
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+2]=1
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)-1]=1
+
     }
     if(player_hp===0){
         endGameLose()
