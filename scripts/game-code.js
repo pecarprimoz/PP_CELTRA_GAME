@@ -438,10 +438,10 @@ function update(){
     }
     if(player.jumping && nextJumpPossible && keys[38] && player.numofjumps>0){
         canBuild=true
-        console.log("test")
-        console.log("?")
+        //console.log("test")
+        //console.log("?")
         gravity=-0.5;
-        console.log(player.numofjumps)
+        //console.log(player.numofjumps)
         player.numofjumps--;
         //console.log("jump")
     }
@@ -451,7 +451,7 @@ function update(){
         player.y=player.y-player.speed;
         if(keys[38]){
             canBuild=true
-            console.log("fist")
+            //console.log("fist")
             gravity=-0.5;
             player.jumping=true;
             player.numofjumps--;
@@ -544,6 +544,7 @@ function collisionDetectionSpecificDown(){
     if(checkIfIsSun(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
         map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX]=0
         let curval=parseInt(coin.innerHTML)+1
+        player_coins++;
         coin.innerHTML=curval
     }
     if(checkIfIsSun(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
@@ -551,6 +552,7 @@ function collisionDetectionSpecificDown(){
         //console.log(1)
         map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0
         let curval=parseInt(coin.innerHTML)+1
+        player_coins++;
         coin.innerHTML=curval
     }
     if(checkIfIsMoon(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
@@ -580,6 +582,7 @@ function collisionDetectionSpecificDownDontChange(){
     if(checkIfIsSun(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0
         let curval=parseInt(coin.innerHTML)+1
+        player_coins++;
         coin.innerHTML=curval
     }
     if(checkIfIsSun(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
@@ -587,6 +590,7 @@ function collisionDetectionSpecificDownDontChange(){
         //console.log(1)
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0
         let curval=parseInt(coin.innerHTML)+1
+        player_coins++;
         coin.innerHTML=curval
     }
     if(checkIfIsMoon(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
@@ -621,6 +625,7 @@ function collisionDetectionSpecificLeft(){
     if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0
         let curval=parseInt(coin.innerHTML)+1
+        player_coins++;
         coin.innerHTML=curval
     }
         if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
@@ -628,6 +633,7 @@ function collisionDetectionSpecificLeft(){
         //console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0
         let curval=parseInt(coin.innerHTML)+1
+            player_coins++;
         coin.innerHTML=curval
     }
     if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
@@ -661,6 +667,7 @@ function collisionDetectionSpecificRight(){
     if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0
         let curval=parseInt(coin.innerHTML)+1
+        player_coins++;
         coin.innerHTML=curval
     }
     if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
@@ -669,6 +676,7 @@ function collisionDetectionSpecificRight(){
 
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0
         let curval=parseInt(coin.innerHTML)+1
+        player_coins++;
         coin.innerHTML=curval
     }
 
@@ -721,7 +729,7 @@ function platformCreator(){
         map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)-1]=1
         num_of_platforms--;
         mytiles.innerHTML=parseInt(mytiles.innerHTML)-1;
-        console.log(num_of_platforms)
+        //console.log(num_of_platforms)
         return;
     }
 
