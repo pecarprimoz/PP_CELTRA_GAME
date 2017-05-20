@@ -5,10 +5,12 @@
 ~~Sprite-i za lepsi izgled~~
 ~~Consumabli ?~~
 ~~* Generacija terena~~
+~~Collision detection za tilemapping, I GUESS LOL~~
+~~* Avtomatsko premikanje, interakcija z tappanjem DROPPED~~
    
-### NOT YET DONE
-* Avtomatsko premikanje, interakcija z tappanjem 
-* Collision detection za tilemapping
+### Kako igrat
+
+Preneseš igro, zaenkrat dela za "vse" naprave, ki jih podpira chrome, odpres f12, zberes mobilno napravo, zarotiras in refreshas.
 
 
 ### Mozni tile set-i
