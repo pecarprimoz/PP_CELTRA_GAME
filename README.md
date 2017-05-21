@@ -18,10 +18,8 @@ http://ppceltra.s3-website.eu-central-1.amazonaws.com/
 
 Namen je igrat v pokoncnem nacinu, tko da zarotiras telefon in refreshas page za najboljsi player experience
 
-### Mozni tile set-i
-http://opengameart.org/content/dirt-platformer-tiles
+### Artist shoutout
 
-http://opengameart.org/content/platformer-art-deluxe
-
-http://opengameart.org/content/a-platformer-in-the-forest
+ * Lanea Zimmerman, dirt tiles used in this game, also the moon and background
+ * Buch @ https://opengameart.org/users/buch; the knight as the enemy
 
