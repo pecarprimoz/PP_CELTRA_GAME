@@ -49,12 +49,10 @@ const initGame = function(){
     initCanvas();
     initPlayer();
     initTiles();
-    initMobileControls()
     createTileMap();
     setHudParams();
     makeMapDynamic();
     generateRandomPowerUps();
-    generateEnemy();
 
 
     function initCanvas() {
@@ -253,6 +251,9 @@ function initPlayer(){
 function checkIfEnemyInRange(){
     for(let i=0; i<widthCols+worldOffsetX; i++){
         if(map[0][i] instanceof Object){
+            if(map[0][i].x<0){
+                map[0][i]=0
+            }
             return map[0][i];
         }
     }
@@ -265,11 +266,17 @@ const draw = function (){
     drawTileMap();
     let currEnemy=checkIfEnemyInRange();
     if(currEnemy instanceof Object){
+        if(Math.floor(currEnemy.x)===Math.floor(player.x) && Math.floor(currEnemy.y)===Math.floor(player.y) ||
+            Math.ceil(currEnemy.x)===Math.ceil(player.x) && Math.ceil(currEnemy.y)===Math.ceil(player.y) ){
+            console.log("yeah=")
+            killPlayer()
+        }
         currEnemy.draw();
         currEnemy.movement();
+        currEnemy.x-=0.1
+
     }
     player.draw();
-    //enemy.draw();
 
 
 
@@ -304,12 +311,13 @@ function init(){
     initGame();
     draw();
 }
+let distanceBetweenEnemy=40;
+let num_of_enemy=0;
 function generateEnemy(){
-    let distanceBetweenEnemy=40;
-    let numOfEnemy=100;
-    for(let i=0 ;i<numOfEnemy; i++){
+    if(num_of_enemy<100){
         map[0][distanceBetweenEnemy]=initEnemy();
         distanceBetweenEnemy+=65;
+        num_of_enemy++;
     }
 }
 
@@ -317,8 +325,8 @@ function generateEnemy(){
 function initEnemy(){
     enemy = {
         color: "white",
-        x : widthCols-widthCols/8,
-        y : heightCols/2,
+        x : widthCols-widthCols/12+worldOffsetX,
+        y : heightCols/2+worldOffsetY,
         width : generateSize(),
         height : generateSize(),
         speed : generateSpeed(),
@@ -327,7 +335,7 @@ function initEnemy(){
         downtime: 9,
         bounced:false,
         draw: function(){
-            ctx.drawImage(tiles[8],Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
+            ctx.drawImage(tiles[5],Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
                 Math.floor(this.height*tileSide))
         },
         movement: function () {
@@ -350,7 +358,7 @@ function initEnemy(){
         }
     };
     function generateSpeed(){
-        return (Math.random() * 1)+0.1
+        return (Math.random() * 0.5)+0.1
     }
     function generateSize(){
         return (Math.random() * 4)+1
@@ -392,14 +400,8 @@ function setPhoneControlsOff(){
 }
 
 const controls = () =>{
-    if( navigator.userAgent.match(/Android/i)
-        || navigator.userAgent.match(/webOS/i)
-        || navigator.userAgent.match(/iPhone/i)
-        || navigator.userAgent.match(/iPad/i)
-        || navigator.userAgent.match(/iPod/i)
-        || navigator.userAgent.match(/BlackBerry/i)
-        || navigator.userAgent.match(/Windows Phone/i)
-    ){
+    if(onphone){
+        initMobileControls()
         keyboardControls()
     }
     else if(width>1000){
@@ -485,6 +487,7 @@ const controls = () =>{
     }
 };
 let canBuild=true;
+let timeScale=0;
 function update(){
     if(onphone){
         mobileBasedGame()
@@ -492,21 +495,14 @@ function update(){
     else{
         computerBasedGame()
     }
-    //preverjamo premikanje
-    //console.log(player.y)
+    generateEnemy()
 
     controls();
 
 
-    //enemy.movement()
-
-
-    //izris na canvas
-    //collisionDetection()
     draw();
     checkifdied();
 
-    //suconsole.log(player.x,player.y)
     requestAnimationFrame(update);
 
 }
@@ -517,7 +513,6 @@ function mobileBasedGame(){
     }
 
     if(collisionDetectionSpecificDown()){
-        // console.log("done")
         nextJumpPossible=false;
         canBuild=false;
         player.jumping=false;
@@ -529,32 +524,24 @@ function mobileBasedGame(){
         player.jumping=true;
         canBuild=true
     }
-    //console.log(collisionDetectionSpecificDownDontChange())
     if(!collisionDetectionSpecificDownDontChange() && player.numofjumps>0 && !keys[422]){
         nextJumpPossible=true;
         canBuild=true
     }
     if(player.jumping && nextJumpPossible && keys[422] && player.numofjumps>0){
         canBuild=true
-        //console.log("test")
-        //console.log("?")
         gravity=-0.5;
-        //console.log(player.numofjumps)
         player.numofjumps--;
-        //console.log("jump")
     }
 
 
     if(collisionDetectionSpecificDownDontChange() && !player.jumping){
         player.y=player.y-player.speed;
         if(keys[422]){
-            canBuild=true
-            //console.log("fist")
+            canBuild=true;
             gravity=-0.5;
             player.jumping=true;
             player.numofjumps--;
-            // console.log(player.numofjumps)
-            //console.log("jump")
         }
     }
     if((keys[423]) && canBuild){
@@ -576,31 +563,24 @@ function computerBasedGame(){
     }
 
     if(collisionDetectionSpecificDown()){
-        // console.log("done")
         nextJumpPossible=false;
         canBuild=false;
         player.jumping=false;
         player.numofjumps=powerJumps;
-        //kle mas neko foro z + ali - ce bo kej narobe
         gravity=player.speed
     }
     if(!collisionDetectionSpecificDownDontChange() && !player.jumping){
         player.jumping=true;
         canBuild=true
     }
-    //console.log(collisionDetectionSpecificDownDontChange())
     if(!collisionDetectionSpecificDownDontChange() && player.numofjumps>0 && !keys[38]){
         nextJumpPossible=true;
         canBuild=true
     }
     if(player.jumping && nextJumpPossible && keys[38] && player.numofjumps>0){
         canBuild=true
-        //console.log("test")
-        //console.log("?")
         gravity=-0.5;
-        //console.log(player.numofjumps)
         player.numofjumps--;
-        //console.log("jump")
     }
 
 
@@ -608,12 +588,9 @@ function computerBasedGame(){
         player.y=player.y-player.speed;
         if(keys[38]){
             canBuild=true
-            //console.log("fist")
             gravity=-0.5;
             player.jumping=true;
             player.numofjumps--;
-            // console.log(player.numofjumps)
-            //console.log("jump")
         }
     }
     if((keys[32]) && canBuild){
@@ -665,8 +642,6 @@ function collisionDetectionSpecificUp(){
 
         checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX) ||
         checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
-        //console.log(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + tileOffsetX/tileSide-player.width/2)+worldOffsetX)
-        //console.log(2)
         player.y=tmp.y+tmp.speed;
 
 
@@ -681,8 +656,6 @@ function collisionDetectionSpecificDown(){
     if(
         checkIfIsFloor(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX) ||
         checkIfIsFloor(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
-        //console.log(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX)
-        //console.log(1)
         player.y=tmp.y-tmp.speed;
         return true;
     }
@@ -693,8 +666,6 @@ function collisionDetectionSpecificDown(){
         coin.innerHTML=curval
     }
     if(checkIfIsSun(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
-        //console.log(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX)
-        //console.log(1)
         map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0
         let curval=parseInt(coin.innerHTML)+1
         player_coins++;
@@ -706,8 +677,6 @@ function collisionDetectionSpecificDown(){
         num_of_platforms+=2;
     }
     if(checkIfIsMoon(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
-        //console.log(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX)
-        //console.log(1)
         map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0
         mytiles.innerHTML=parseInt(mytiles.innerHTML)+2
         num_of_platforms+=2;
@@ -720,8 +689,6 @@ function collisionDetectionSpecificDownDontChange(){
     if(
         checkIfIsFloor(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX) ||
         checkIfIsFloor(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
-        //console.log(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX)
-        //console.log(1)
         return true;
     }
     if(checkIfIsSun(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
@@ -731,8 +698,6 @@ function collisionDetectionSpecificDownDontChange(){
         coin.innerHTML=curval
     }
     if(checkIfIsSun(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
-        //console.log(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX)
-        //console.log(1)
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0
         let curval=parseInt(coin.innerHTML)+1
         player_coins++;
@@ -744,8 +709,6 @@ function collisionDetectionSpecificDownDontChange(){
         num_of_platforms+=2;
     }
     if(checkIfIsMoon(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
-        //console.log(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX)
-        //console.log(1)
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0
         mytiles.innerHTML=parseInt(mytiles.innerHTML)+2
         num_of_platforms+=2;
@@ -757,13 +720,10 @@ function collisionDetectionSpecificDownDontChange(){
 //fixed
 function collisionDetectionSpecificLeft(){
     let tmp = player;
-    //console.log(tileOffsetX/tileSide)
     //
     if(
         checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))||
         checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
-        //console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
-        //console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
         player.x = tmp.x + tmp.speed;
         return true;
     }
@@ -774,8 +734,6 @@ function collisionDetectionSpecificLeft(){
         coin.innerHTML=curval
     }
         if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
-        //console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
-        //console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0
         let curval=parseInt(coin.innerHTML)+1
             player_coins++;
@@ -787,8 +745,6 @@ function collisionDetectionSpecificLeft(){
         num_of_platforms+=2;
     }
     if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
-        //console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
-        //console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0
         mytiles.innerHTML=parseInt(mytiles.innerHTML)+2
         num_of_platforms+=2;
@@ -804,8 +760,6 @@ function collisionDetectionSpecificRight(){
     if(
         checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))||
         checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
-        //console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
-        //console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
         player.x = tmp.x - tmp.speed;
         return true;
     }
@@ -816,8 +770,6 @@ function collisionDetectionSpecificRight(){
         coin.innerHTML=curval
     }
     if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
-        //console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
-        //console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
 
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0
         let curval=parseInt(coin.innerHTML)+1
@@ -831,8 +783,6 @@ function collisionDetectionSpecificRight(){
         num_of_platforms+=2;
     }
     if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
-        //console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
-        //console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
 
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0
 
@@ -863,6 +813,18 @@ function checkifdied(){
         endGameLose()
     }
 }
+function killPlayer(){
+    player_hp--;
+    hp.innerHTML=player_hp;
+    restartCurrentlevel();
+    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)]=1
+    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1
+    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+2]=1
+    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1
+    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)-1]=1
+    checkifdied()
+
+}
 function endGameLose(){
     var end = document.getElementById("end");
     end.innerHTML="YOU LOST<br> your score was "+player_coins;
@@ -881,18 +843,13 @@ function platformCreator(){
         map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)-1]=1
         num_of_platforms--;
         mytiles.innerHTML=parseInt(mytiles.innerHTML)-1;
-        //console.log(num_of_platforms)
         return;
     }
 
 }
 
-/*
-function collisionDetectionSpecific(){
-    let tmp = player;
-    //console.log(tileOffsetY)
 
-    /*            checkIfIsFloor(Math.floor(player.y+worldOffsetY + Math.abs(tileOffsetY/tileSide)), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.2)))
+    /*
 
  3 primeri
     |         |
@@ -901,54 +858,4 @@ function collisionDetectionSpecific(){
     |         |
     *----*----*
     ceil si v spodnjem kotu
-
-
-
-     */
-        /*
-    if(
-        checkIfIsFloor(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX) ||
-        checkIfIsFloor(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
-        //console.log(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY),Math.ceil(player.x + tileOffsetX/tileSide+player.width/2)+worldOffsetX)
-        console.log(1)
-        player.y=tmp.y-tmp.speed;
-        return true;
-    }
-
-    if(
-        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX) ||
-        checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
-        //console.log(Math.floor(player.y + player.height+worldOffsetY  + tileOffsetY/tileSide), Math.ceil(player.x + tileOffsetX/tileSide-player.width/2)+worldOffsetX)
-        console.log(2)
-        player.y=tmp.y+tmp.speed;
-
-        return true;
-    }
-
-
-
-
-    if(
-            checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide+1), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.2) ||
-            checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide)) +player.width-0.2)))
-    ){
-        console.log(3)
-            player.x = tmp.x + tmp.speed;
-            return true;
-    }
-     checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide)) +player.width))
-
-    if(
-        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.2))||
-        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.2))){
-        console.log(checkIfIsFloor(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width)))
-        console.log(Math.floor(player.y+worldOffsetY + tileOffsetY/tileSide)+1, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width))
-        player.x = tmp.x - tmp.speed;
-        return true;
-    }
-
-    return false;
-
-}*/
-
-
+*/

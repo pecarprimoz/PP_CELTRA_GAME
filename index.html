@@ -47,6 +47,7 @@
             padding-left:20px;
         }
         #LEFT {
+            background-image: url('./imgs/arrow_left.png') !important;
             width:50px;
             height:50px;
             backgroud-color:black;
@@ -59,11 +60,12 @@
             margin-top:45%;
             z-index: 1000;
             display:block;
-            opacity: 0.4;
+            opacity: 0.6;
         }
         #RIGHT{
-            width:75px;
-            height:75px;
+            background-image: url('./imgs/arrow_right.png') !important;
+            width:50px;
+            height:50px;
             backgroud-color:black;
             font-size:32px;
             color:red;
@@ -74,31 +76,39 @@
             margin-top:45%;
             z-index: 1000;
             display:block;
-            opacity: 0.4;
+            opacity: 0.6;
         }
         #JUMP{
+            background-image: url('./imgs/arrow_up.png') !important;
+            width:50px;
+            height:50px;
             backgroud-color:black;
             font-size:32px;
             color:red;
             font-family: 'Roboto', sans-serif;
             position: absolute;
-            margin-left:90%;
+            float:left;
+            margin-left: 90%;
             margin-top:45%;
             z-index: 1000;
             display:block;
-            opacity: 0.4;
+            opacity: 0.6;
         }
         #ACTION{
+            background-image: url('./imgs/plat_mob.png') !important;
+            width:50px;
+            height:50px;
             backgroud-color:black;
             font-size:32px;
             color:red;
             font-family: 'Roboto', sans-serif;
             position: absolute;
-            margin-left:80%;
+            float:left;
+            margin-left: 80%;
             margin-top:45%;
             z-index: 1000;
             display:block;
-            opacity: 0.4;
+            opacity: 0.6;
         }
         canvas{
             position: absolute
@@ -115,10 +125,10 @@
 <div id="container">
     <canvas id="canvas" style="left: 0px; top: 0px;width:100%">
     display:block;margin:auto"></canvas>
-    <div id="LEFT" ><img src="./imgs/arrow_left.png"></div>
-    <div id="RIGHT"><img src="./imgs/arrow_right.png"></div>
-    <div id="JUMP"><img src="./imgs/arrow_up.png"></div>
-    <div id="ACTION"><img src="./imgs/plat_mob.png"></div>
+    <div id="LEFT" ></div>
+    <div id="RIGHT"></div>
+    <div id="JUMP"></div>
+    <div id="ACTION"></div>
 </div>
 <div id="end"></div>
 
