@@ -46,15 +46,82 @@
             display:block;
             padding-left:20px;
         }
+        #LEFT {
+            width:50px;
+            height:50px;
+            backgroud-color:black;
+            font-size:32px;
+            color:red;
+            font-family: 'Roboto', sans-serif;
+            position: absolute;
+            float:left;
+            margin-left: 2%;
+            margin-top:45%;
+            z-index: 1000;
+            display:block;
+            opacity: 0.4;
+        }
+        #RIGHT{
+            width:75px;
+            height:75px;
+            backgroud-color:black;
+            font-size:32px;
+            color:red;
+            font-family: 'Roboto', sans-serif;
+            position: absolute;
+            float:left;
+            margin-left: 12%;
+            margin-top:45%;
+            z-index: 1000;
+            display:block;
+            opacity: 0.4;
+        }
+        #JUMP{
+            backgroud-color:black;
+            font-size:32px;
+            color:red;
+            font-family: 'Roboto', sans-serif;
+            position: absolute;
+            margin-left:90%;
+            margin-top:45%;
+            z-index: 1000;
+            display:block;
+            opacity: 0.4;
+        }
+        #ACTION{
+            backgroud-color:black;
+            font-size:32px;
+            color:red;
+            font-family: 'Roboto', sans-serif;
+            position: absolute;
+            margin-left:80%;
+            margin-top:45%;
+            z-index: 1000;
+            display:block;
+            opacity: 0.4;
+        }
+        canvas{
+            position: absolute
+        }
     </style>
 </head>
 <body>
 <div id="info">Life: <span id="hp"></span>
     Coins:  <span id="coin"></span>
-    Platforms:  <span id="plat"></span></div>
-    <canvas id="canvas" style="left: 0px; top: 0px;width:100%;border:1px solid black;
+    Platforms:  <span id="plat"></span>
+
+
+</div>
+<div id="container">
+    <canvas id="canvas" style="left: 0px; top: 0px;width:100%">
     display:block;margin:auto"></canvas>
+    <div id="LEFT" ><img src="./imgs/arrow_left.png"></div>
+    <div id="RIGHT"><img src="./imgs/arrow_right.png"></div>
+    <div id="JUMP"><img src="./imgs/arrow_up.png"></div>
+    <div id="ACTION"><img src="./imgs/plat_mob.png"></div>
+</div>
 <div id="end"></div>
+
 </body>
 <script type="text/javascript" src="./scripts/game-code.js"></script>
 </html>
