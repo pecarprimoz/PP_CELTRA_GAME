@@ -10,7 +10,7 @@
    
 ### Kako igrat
 
-Preneseš igro, zaenkrat dela za "vse" naprave, ki jih podpira chrome, odpres f12, zberes mobilno napravo, zarotiras in refreshas.
+[Beri mene, poglavje 5 / zadnja stran](https://github.com/pecarprimoz/PP_CELTRA_GAME/blob/master/celtra_pecar_primoz_porocilo.pdf)
 
 ### Sedaj tudi na mobitelu
 
