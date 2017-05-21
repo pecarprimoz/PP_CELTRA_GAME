@@ -12,11 +12,14 @@
 
 Preneseš igro, zaenkrat dela za "vse" naprave, ki jih podpira chrome, odpres f12, zberes mobilno napravo, zarotiras in refreshas.
 
+### Sedaj tudi na mobitelu
 
-### Mozni tile set-i
-http://opengameart.org/content/dirt-platformer-tiles
+http://ppceltra.s3-website.eu-central-1.amazonaws.com/
 
-http://opengameart.org/content/platformer-art-deluxe
+Namen je igrat v pokoncnem nacinu, tko da zarotiras telefon in refreshas page za najboljsi player experience
 
-http://opengameart.org/content/a-platformer-in-the-forest
+### Artist shoutout
+
+ * Lanea Zimmerman, dirt tiles used in this game, also the moon and background
+ * Buch @ https://opengameart.org/users/buch; the knight as the enemy
 
