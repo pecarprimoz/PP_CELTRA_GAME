@@ -1,3 +1,22 @@
+
+
+
+/*
+****************************************
+Made by Primož Pečar, fri vsš 2 letnik
+    Kontakt: pppecar@gmail.com
+    Pls hire me as a gamedev/IT monkey
+****************************************
+*/
+
+
+/*  CREDITS / SHOUT OUT
+ * Lanea Zimmerman, dirt tiles used in this game, also the moon and background
+ * Buch @ https://opengameart.org/users/buch; the knight as the enemy
+ */
+
+
+
 //Globalni variabli, uporabljeni čez cel projekt
 let canvas, ctx, width, height, player,
     worldOffsetX = 0,
@@ -703,7 +722,7 @@ function checkIfIsMoon(i,j){
 }
 
 /*
- * Collision detection, uporablja se axis aligned bounding box, boljša razlaga v dokumentaciji, na kratko kaj je point tega
+ * Collision detection, uporablja se axis aligned bounding box, na kratko kaj je point tega
  * dejansko gledamo levi zgornji rob, in desni spodnji rob, na poglagi tega gledamo ali je v mapi element, ki je določen
  * kot luna,sonce ali block, in na podlagi tega reagiramo.
  * Preverjamo 3 različne stvari, če je sonce, povečamo score, če je luna povečamo powerup, če je tile pravilno popravimo
@@ -927,9 +946,4 @@ function platformCreator(){
     |         |
     *----*----*
     ceil si v spodnjem kotu
-    ****************************************
-    Made by Primož Pečar, fri vsš 2 letnik,
-    Kontakt: pppecar@gmail.com
-    Pls hire me as a gamedev
-    ****************************************
 */
