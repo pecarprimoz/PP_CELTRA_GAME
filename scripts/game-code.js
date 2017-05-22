@@ -443,7 +443,7 @@ function initEnemy(){
         return (Math.random())+0.1
     }
     function generateSize(){
-        return (Math.random() * 4)+1
+        return (Math.random() *2)+1
     }
     return enemy;
 }
@@ -493,6 +493,15 @@ function setPhoneControlsOff(){
     document.getElementById("RIGHT").style.display = "none";
     document.getElementById("JUMP").style.display = "none";
     document.getElementById("ACTION").style.display = "none";
+    document.getElementById("canvas").addEventListener("mousedown", function (e) {
+        console.log(e)
+        let posX = Math.ceil(worldOffsetX+e.pageX/tileSide) - Math.floor(tileOffsetX/tileSide);
+        let posY = Math.ceil(e.pageY/tileSide + tileOffsetY+0.25)
+        console.log(posY,posX)
+        if(map[posY][posX]===1 && posY!=1){
+            map[posY][posX]=0;
+        }
+    },{passive:true});
 }
 
 let initCont=false;
@@ -500,13 +509,18 @@ let initCont=false;
 const controls = () =>{
     if(onphone){
         if(!initCont){
+
             initMobileControls();
             initCont=true;
         }
         keyboardControls();
     }
     else if(width>1000){
-        setPhoneControlsOff();
+        if(!initCont){
+            console.log("wot")
+            setPhoneControlsOff();
+            initCont=true;
+        }
         keyboardControls();
     }
     /*
