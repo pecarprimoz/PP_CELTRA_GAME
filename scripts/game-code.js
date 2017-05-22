@@ -479,7 +479,7 @@ function initMobileControls(){
     canvas.addEventListener("touchstart", function (e) {
         let posX = Math.ceil(worldOffsetX+e.touches[0].pageX/tileSide) - Math.floor(tileOffsetX/tileSide+0.25);
         let posY = Math.ceil(e.touches[0].pageY/tileSide + tileOffsetY+0.25)
-        if(map[posY][posX]===1){
+        if(map[posY][posX]===1 && posY!=1){
             map[posY][posX]=0;
         }
     },{passive:true});
