@@ -28,11 +28,13 @@ let canvas, ctx, width, height, player,
     player_hp=3,
     num_of_platforms=5,
     powerJumps=5,
-    player_coins=0;
+    player_coins=0,
+    ctx_back,canvas_back;
+
 
 //Spremenljivka za čekiranje, ali smo na telefonu
 let onphone=false;
-
+let shakeEvents=false;
 
 function checkIfRunningOnPhone(){
     //Regex za preverjanje ali je trenutna naprava na telefonu
@@ -53,6 +55,7 @@ function checkIfRunningOnPhone(){
 const keys = [];
 const map = [];
 const tiles = [];
+const all_audio=[];
 let widthCols = -1;
 let heightCols = -1;
 let nextJumpPossible = false;
@@ -99,11 +102,44 @@ function restartCurrentlevel(){
  * generateRandomPowerUps --> dodamo lune, za platforme
  *
  */
+function clearPlayerArea(playerpos){
+    if(playerpos<3){
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+2]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)-1]=0;
+
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+2]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)-1]=0;
+
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+2]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)-1]=0;
+    }
+}
+function initBackCanvas() {
+    canvas_back=document.getElementById("background-layer");
+    ctx_back = canvas_back.getContext("2d");
+    ctx_back.width  = window.innerWidth;
+    ctx_back.height = window.innerHeight;
+    width_back=canvas_back.width;
+    height_back=canvas_back.height;
+}
+
 const initGame = function(){
     onphone=checkIfRunningOnPhone();
     initCanvas();
     initPlayer();
     initTiles();
+    initAutio();
+    initBackCanvas();
+    all_audio[2].play();
     createTileMap();
     setHudParams();
     makeMapDynamic();
@@ -117,6 +153,21 @@ const initGame = function(){
         width=canvas.width;
         height=canvas.height;
         canvas.tabIndex=1;
+        shakeEvents=true;
+
+        if(shakeEvents){
+            window.addEventListener('devicemotion', function (e) {
+                let x =e.accelerationIncludingGravity.x;
+                let y = e.accelerationIncludingGravity.y;
+                let z = e.accelerationIncludingGravity.z;
+                if(Math.abs(y)>10 && Math.abs(x)>10 && Math.abs(z)){
+                    window.navigator.vibrate(200);
+                    createTileMap();
+                    makeMapDynamic();
+                    clearPlayerArea(Math.ceil(player.y));
+                }
+            })
+        }
 
         //Nastavitev velikosti blokcov, spreminja glede na velikost zaslona
         if(height>width){
@@ -144,7 +195,7 @@ const initGame = function(){
                 map.push(Array.apply(null, Array(100)).map(Number.prototype.valueOf,1));
             }
             else{
-                map.push(Array.apply(null, Array(100)).map(Number.prototype.valueOf,0));
+                map.push(Array.apply(null, Array(10000)).map(Number.prototype.valueOf,0));
             }
         }
         map[7][10]=1;
@@ -208,6 +259,9 @@ const initGame = function(){
         let plpic = new Image();
         plpic.src="./imgs/abomination.png";
         tiles.push(plpic);
+        let back_new= new Image();
+        back_new.src="./imgs/back_proper.png";
+        tiles.push(back_new);
 
     }
     //player size, player speed, player jump
@@ -287,13 +341,13 @@ const initGame = function(){
     }
     //Funkcije, za naključne elemente v igri
     function calculateRandomIntervalForPlatforms(){
-        return Math.floor((Math.random() * 5)+1);
+        return Math.floor((Math.random() * 3)+1);
     }
     function calculateRandomHeight() {
         return Math.floor((Math.random() * (heightCols-7))+4);
     }
     function calculatRandomWidth(){
-        return Math.floor((Math.random()* (widthCols-2))+4);
+        return Math.floor((Math.random()* (widthCols-7))+4);
     }
 };
 
@@ -333,6 +387,28 @@ function checkIfEnemyInRange(){
     }
 }
 
+function initAutio(){
+    var jump = new Audio()
+    jump.src="./sounds/jump.mp3";
+    all_audio.push(jump);
+    var coin = new Audio();
+    coin.src='./sounds/coin.mp3';
+    all_audio.push(coin);
+    var general_sounds= new Audio();
+    general_sounds.src='./sounds/music.mp3';
+    general_sounds.loop = true;
+    all_audio.push(general_sounds);
+    var gamewin = new Audio()
+    gamewin.src="./sounds/gamewin.mp3";
+    all_audio.push(gamewin);
+    var gameloose = new Audio()
+    gameloose.src="./sounds/gameover.mp3";
+    all_audio.push(gameloose);
+    var hit = new Audio()
+    hit.src="./sounds/hit.mp3";
+    all_audio.push(hit);
+}
+
 
 /* IZRIS VSEGA
 *  pobrišemo canvas, izrišemo mapo, izrišemo sovreažnika če je v viewframe-u, izrišemo igralca
@@ -366,16 +442,17 @@ const draw = function (){
         for(let i=worldOffsetY; i<heightCols+worldOffsetY+4; i++){
             for(let j=worldOffsetX; j<widthCols+worldOffsetX+4; j++){
                 if(map[i][j]===1){
-                    ctx.drawImage(tiles[1],posX+tileOffsetX,posY+tileOffsetY,tileSide,tileSide);
+                    ctx.drawImage(tiles[1],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
                 }
                 else if(map[i][j]===2){
-                    ctx.drawImage(tiles[6],posX+tileOffsetX,posY+tileOffsetY,tileSide,tileSide);
+                    ctx.drawImage(tiles[6],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
                 }
                 else if(map[i][j]===3){
-                    ctx.drawImage(tiles[7],posX+tileOffsetX,posY+tileOffsetY,tileSide,tileSide);
+                    ctx.drawImage(tiles[7],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
                 }
                 else{
-                    ctx.drawImage(tiles[0],posX+tileOffsetX,posY+tileOffsetY,tileSide,tileSide);
+                    ctx.drawImage(tiles[0],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
+                    ctx_back.drawImage(tiles[1],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide)
                 }
                 posX+=tileSide
             }
@@ -451,6 +528,11 @@ function initEnemy(){
 /*
  * Inicializacija kontrol za telefon, touchstart in touchend eventi, ko pritisnemo in spustimo
  */
+
+let canDestory ={
+    check:false,
+    event:null,
+};
 function initMobileControls(){
     document.getElementById("LEFT").addEventListener("touchstart", function () {
         keys[420]=true
@@ -477,13 +559,19 @@ function initMobileControls(){
         keys[423]=false
     },{passive:true});
     canvas.addEventListener("touchstart", function (e) {
-        let posX = Math.ceil(worldOffsetX+e.touches[0].pageX/tileSide) - Math.floor(tileOffsetX/tileSide+0.25);
-        let posY = Math.ceil(e.touches[0].pageY/tileSide + tileOffsetY+0.25)
-        if(map[posY][posX]===1 && posY!=1){
-            map[posY][posX]=0;
-        }
+        canDestory.check=true;
+        all_audio[0].play();
+        all_audio[0].pause();
+        canDestory.event=e;
+
+
+    },{passive:true});
+    canvas.addEventListener("touchmove", function(e) {
+        canDestory.event=e;
     },{passive:true});
     canvas.addEventListener("touchend", function () {
+        canDestory.check=false;
+        canDestory.event=null;
     },{passive:true});
 }
 
@@ -493,14 +581,18 @@ function setPhoneControlsOff(){
     document.getElementById("RIGHT").style.display = "none";
     document.getElementById("JUMP").style.display = "none";
     document.getElementById("ACTION").style.display = "none";
-    document.getElementById("canvas").addEventListener("mousedown", function (e) {
-        console.log(e)
-        let posX = Math.ceil(worldOffsetX+e.pageX/tileSide) - Math.floor(tileOffsetX/tileSide);
-        let posY = Math.ceil(e.pageY/tileSide + tileOffsetY+0.25)
-        console.log(posY,posX)
-        if(map[posY][posX]===1 && posY!=1){
-            map[posY][posX]=0;
-        }
+    canvas.addEventListener("mousedown", function (e) {
+        canDestory.check=true;
+        canDestory.event=e;
+
+
+    },{passive:true});
+    canvas.addEventListener("mousemove", function(e) {
+        canDestory.event=e;
+    },{passive:true});
+    canvas.addEventListener("mouseup", function () {
+        canDestory.check=false;
+        canDestory.event=null;
     },{passive:true});
 }
 
@@ -517,7 +609,6 @@ const controls = () =>{
     }
     else if(width>1000){
         if(!initCont){
-            console.log("wot")
             setPhoneControlsOff();
             initCont=true;
         }
@@ -581,6 +672,7 @@ let canBuild=true;
  *
  */
 function update(){
+
     if(onphone){
         mobileBasedGame()
     }
@@ -588,12 +680,12 @@ function update(){
         computerBasedGame()
     }
     generateEnemy();
-
     controls();
 
 
     draw();
     checkifdied();
+    checkIfGameWon();
 
     requestAnimationFrame(update);
 
@@ -603,6 +695,15 @@ function update(){
  * tipk, vendar vežemo event listenerje na dom objekte, teli pa poslušajo ali smo tappali, ali ne.
  */
 function mobileBasedGame(){
+
+    if(canDestory.check){
+        let posX = Math.ceil(worldOffsetX+canDestory.event.touches[0].pageX/tileSide) - Math.floor(tileOffsetX/tileSide+0.25);
+        let posY = Math.ceil(canDestory.event.touches[0].pageY/tileSide + tileOffsetY+0.25)
+        if(map[posY][posX]===1 && posY!=1){
+            map[posY][posX]=0;
+        }
+    }
+
     //Preverimo če smo se zabili v zgornji del bloka
     if(collisionDetectionSpecificUp()){
         gravity+=0.3;
@@ -640,6 +741,7 @@ function mobileBasedGame(){
     if(collisionDetectionSpecificDownDontChange() && !player.jumping){
         player.y=player.y-player.speed;
         if(keys[422]){
+
             canBuild=true;
             gravity=-0.5;
             player.jumping=true;
@@ -665,6 +767,15 @@ function mobileBasedGame(){
 
 //Enako kot zgoraj, vendar da se uporablajo druge tipke
 function computerBasedGame(){
+    if(canDestory.check){
+        let posX = Math.ceil(worldOffsetX+canDestory.event.pageX/tileSide) - Math.floor(tileOffsetX/tileSide);
+        let posY = Math.ceil(canDestory.event.pageY/tileSide + tileOffsetY+0.25)
+        if(map[posY][posX]===1 && posY!=1){
+            map[posY][posX]=0;
+        }
+    }
+
+
     if(collisionDetectionSpecificUp()){
         gravity+=0.3;
         player.y+=player.speed;
@@ -688,12 +799,14 @@ function computerBasedGame(){
     if(player.jumping && nextJumpPossible && keys[38] && player.numofjumps>0){
         canBuild=true;
         gravity=-0.5;
+        playJump()
         player.numofjumps--;
     }
 
     if(collisionDetectionSpecificDownDontChange() && !player.jumping){
         player.y=player.y-player.speed;
         if(keys[38]){
+            playJump()
             canBuild=true;
             gravity=-0.5;
             player.jumping=true;
@@ -711,6 +824,16 @@ function computerBasedGame(){
 
     player.y+=gravity
 }
+function playJump(){
+    all_audio[0].play();
+    all_audio[0].currentTime = 0;
+}
+
+function playCoin(){
+    all_audio[1].play();
+    all_audio[1].currentTime = 0;
+}
+
 
 
 function handleWindowResize() {
@@ -780,12 +903,14 @@ function collisionDetectionSpecificDown(){
     if(checkIfIsSun(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
         map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX]=0;
         let curval=parseInt(coin.innerHTML)+1;
+        playCoin()
         player_coins++;
         coin.innerHTML=curval
     }
     if(checkIfIsSun(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
         map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0;
         let curval=parseInt(coin.innerHTML)+1;
+        playCoin()
         player_coins++;
         coin.innerHTML=curval
     }
@@ -813,12 +938,14 @@ function collisionDetectionSpecificDownDontChange(){
     if(checkIfIsSun(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
+        playCoin()
         player_coins++;
         coin.innerHTML=curval
     }
     if(checkIfIsSun(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
+        playCoin()
         player_coins++;
         coin.innerHTML=curval
     }
@@ -847,6 +974,7 @@ function collisionDetectionSpecificLeft(){
     if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
+        playCoin()
         player_coins++;
         coin.innerHTML=curval
     }
@@ -854,6 +982,7 @@ function collisionDetectionSpecificLeft(){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
             player_coins++;
+            playCoin()
         coin.innerHTML=curval
     }
     if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
@@ -881,6 +1010,7 @@ function collisionDetectionSpecificRight(){
     if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
+        playCoin()
         player_coins++;
         coin.innerHTML=curval
     }
@@ -889,6 +1019,7 @@ function collisionDetectionSpecificRight(){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
         player_coins++;
+        playCoin()
         coin.innerHTML=curval
     }
 
@@ -911,10 +1042,30 @@ function collisionDetectionSpecificRight(){
 // igralno površino, iz katere se bo lahko normalno premikal naprej.
 function checkifdied(){
     if(Math.floor(player.y)>heightCols){
-
+        all_audio[5].play()
+        window.navigator.vibrate(200)
         player_hp--;
         hp.innerHTML=player_hp;
         restartCurrentlevel();
+
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+2]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)-1]=0;
+
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+2]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)-1]=0;
+
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+2]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)-1]=0;
+
         map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)]=1;
         map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
         map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+2]=1;
@@ -923,15 +1074,19 @@ function checkifdied(){
 
     }
     if(player_hp===0){
+        window.navigator.vibrate(1000)
         endGameLose()
     }
 }
 
 //Ubijemo igralca, potrebno za kolizijo med sovražnikom
 function killPlayer(){
+    all_audio[5].play()
+    window.navigator.vibrate(500)
     player_hp--;
     hp.innerHTML=player_hp;
     restartCurrentlevel();
+
     map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)]=1;
     map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
     map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+2]=1;
@@ -944,10 +1099,19 @@ function killPlayer(){
 function endGameLose(){
     var end = document.getElementById("end");
     end.innerHTML="YOU LOST<br> your score was "+player_coins;
+    all_audio[4].play()
     ctx=null;
 
 }
 
+function checkIfGameWon(){
+    if(parseInt(document.getElementById("coin").innerHTML)===50) {
+        var end = document.getElementById("end");
+        end.innerHTML = "YOU WON<br> CONGRATS MY DUDE";
+        all_audio[3].play();
+        ctx = null;
+    }
+}
 
 //Kreira platformo, ubistvu powerup, ki nam omogoča da modificiramo mapo
 function platformCreator(){
@@ -961,9 +1125,7 @@ function platformCreator(){
         mytiles.innerHTML=parseInt(mytiles.innerHTML)-1;
 
     }
-
 }
-
 
 /*
  3 primeri

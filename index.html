@@ -25,7 +25,7 @@
             display: block;  /* No floating content on sides */
         }
         #info {
-
+            font-weight: bolder;
             font-size:12px;
             color:yellow;
             font-family: 'Roboto', sans-serif;
@@ -71,7 +71,7 @@
             float:left;
             margin-left: 22%;
             bottom:0px;
-            z-index: 1000;
+            z-index: 1;
             display:block;
             opacity: 0.6;
         }
@@ -102,6 +102,8 @@
         canvas{
             position: absolute
         }
+        #background-layer { z-index: -1;
+            position: absolute}
     </style>
 </head>
 <body>
@@ -111,6 +113,7 @@
 </div>
 <div id="container">
     <canvas id="canvas" style="left: 0px; top: 0px;width:100%">
+        <canvas id="background-layer" style="left: 0px; top: 0px;width:100%"></canvas>
     </canvas>
     <div id="LEFT" ></div>
     <div id="RIGHT"></div>
