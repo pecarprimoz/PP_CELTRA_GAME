@@ -987,7 +987,7 @@ function killPlayer(){
     player_hp--;
     hp.innerHTML=player_hp;
     restartCurrentlevel();
-    if(playerpos>3){
+    if(Math.ceil(player.y)>3){
         map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)]=1;
         map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
         map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+2]=1;
