@@ -1,11 +1,10 @@
-
-
-
 /*
 ****************************************
+*
 Made by Primož Pečar, fri vsš 2 letnik
     Kontakt: pppecar@gmail.com
-    Pls hire me as a gamedev/IT monkey
+ ʕ•ᴥ•ʔ Pls hire me as a gamedev ʕ•ᴥ•ʔ
+
 ****************************************
 */
 
@@ -14,8 +13,6 @@ Made by Primož Pečar, fri vsš 2 letnik
  * Lanea Zimmerman, dirt tiles used in this game, also the moon and background
  * Buch @ https://opengameart.org/users/buch; the knight as the enemy
  */
-
-
 
 //Globalni variabli, uporabljeni čez cel projekt
 let canvas, ctx, width, height, player,
@@ -31,6 +28,21 @@ let canvas, ctx, width, height, player,
     player_coins=0,
     distance_traveled=0;
 
+/*
+ // keys --> Array za tipke, za telefon in računalnik
+ // map --> Array za celotno mapo, potrebno za postavitev elementov
+ // tiles --> Array za same slikice, potrebno za izris
+ // width/height se nastavita na podlagi resolucije ekrana
+ // nextPossibleJump je za preverjanje doublejump-a
+ */
+const keys = [];
+const map = [];
+const tiles = [];
+const all_audio=[];
+let widthCols = -1;
+let heightCols = -1;
+let nextJumpPossible = false;
+
 //Spremenljivka za čekiranje, ali smo na telefonu
 let onphone=false;
 let shakeEvents=false;
@@ -44,22 +56,13 @@ function checkIfRunningOnPhone(){
     };
     return window.mobilecheck();
 }
-/*
-// keys --> Array za tipke, za telefon in računalnik
-// map --> Array za celotno mapo, potrebno za postavitev elementov
-// tiles --> Array za same slikice, potrebno za izris
-// width/height se nastavita na podlagi resolucije ekrana
-// nextPossibleJump je za preverjanje doublejump-a
- */
-const keys = [];
-const map = [];
-const tiles = [];
-const all_audio=[];
-let widthCols = -1;
-let heightCols = -1;
-let nextJumpPossible = false;
 
+/***************************************** INIT FUNCTIONS *********************************************/
 window.onload=init;
+function init(){
+    initGame();
+    draw();
+}
 /*
 * EVENT LISTENERJI ZA SCREEN ROTATE IN KEY KONTROLE
 * Ko se stran nalozi, doda update, kateri se konstantno izvaja
@@ -82,14 +85,6 @@ document.body.addEventListener("keyup", function(e) {
 });
 
 /*
- * Ko igralec umre in ima še življenj za restart, postavimo parametre HUD-a in repozicioniramo igralca.
- */
-function restartCurrentlevel(){
-    initPlayer();
-    setHudParams();
-}
-
-/*
  * Inicializacija same igre
  * onphone --> preverimo, če je trenutna naprava telefon, na podlagi tega spremenimo način igranja
  * initCanvas --> nastavimo vse globalne variable, da jih kličemo čez projekt za izris
@@ -101,27 +96,6 @@ function restartCurrentlevel(){
  * generateRandomPowerUps --> dodamo lune, za platforme
  *
  */
-function clearPlayerArea(playerpos){
-    if(playerpos>3){
-        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)]=0;
-        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
-        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+2]=0;
-        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
-        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)-1]=0;
-
-        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)]=0;
-        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+1]=0;
-        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+2]=0;
-        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+1]=0;
-        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)-1]=0;
-
-        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)]=0;
-        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+1]=0;
-        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+2]=0;
-        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+1]=0;
-        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)-1]=0;
-    }
-}
 
 const initGame = function(){
     onphone=checkIfRunningOnPhone();
@@ -129,7 +103,6 @@ const initGame = function(){
     initPlayer();
     initTiles();
     initAutio();
-
     all_audio[2].play();
     createTileMap();
     setHudParams();
@@ -146,6 +119,10 @@ const initGame = function(){
         canvas.tabIndex=1;
         shakeEvents=true;
 
+        /*
+         * Zabavna game mehanika, če teseš telefon se ti naključno generira mapa, omogoča lažje platformanje
+         *
+         */
         if(shakeEvents){
             window.addEventListener('devicemotion', function (e) {
                 let x =e.accelerationIncludingGravity.x;
@@ -175,7 +152,7 @@ const initGame = function(){
     }
 
     /*
-    *   Naredimo 100x100 array, v katerega damo na spodnji in zgornji rob tile-e, se uporabi le za začetek, da zgradimo
+    *   Naredimo 10000x100 array, v katerega damo na spodnji in zgornji rob tile-e, se uporabi le za začetek, da zgradimo
     *   spawnpoint za igralca, hočemo da je enak.
     *   Dodamo nekaj začetnih elementov, v resnici so se uporabljali za začetno debugganje, rabil sem testirati
     *   collision detection na več različnih situacijah.
@@ -210,10 +187,6 @@ const initGame = function(){
         for(let h=0; h<100000; h++){
                 map[1][h]=1;
         }
-        for(let f=0; f<20; f++){
-            map[f][0]=1;
-        }
-
     }
     return {
         initCanvas
@@ -331,12 +304,13 @@ const initGame = function(){
         //Število sonc, globalna valuta v moji videoigri, hvala Andrej
         let numOfCoins=500;
         let distBetwCoin=15;
-        for(let j=0; j<numOfCoins; j++){
-            let rHeight=calculateRandomHeight();
-            if(!checkIfIsFloor(rHeight,distBetwCoin))
-                map[rHeight][distBetwCoin]=3;
-            distBetwCoin+=30;
+        for(let j=0; j<numOfCoins; j++) {
+            let rHeight = calculateRandomHeight();
+            if (!checkIfIsFloor(rHeight, distBetwCoin))
+                map[rHeight][distBetwCoin] = 3;
+            distBetwCoin += 30;
         }
+        //Življena za playerja
         let numOfHearts=100;
         let distBetwHeart=150;
         for(let j=0; j<numOfHearts; j++){
@@ -370,26 +344,15 @@ function initPlayer(){
         draw: function(){
             ctx.drawImage(tiles[8],Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
                 Math.floor(this.height*tileSide)+7)
-
         }
     }
 }
 
 /*
- * Preverjane ali je potrebno izrisati sovražnika
+ * Dodal sem zvoke za boljšo uporabniško izkušnjo, edini problem je ta, da na telefonu nemoreš predvajati
+ * zvokov brez dovoljenja igralca, za to je to feature, ki je podprt samo na PC-ju.
+ *
  */
-
-function checkIfEnemyInRange(){
-    for(let i=0; i<widthCols+worldOffsetX; i++){
-        if(map[0][i] instanceof Object){
-            if(map[0][i].x<0){
-                map[0][i]=0
-            }
-            return map[0][i];
-        }
-    }
-}
-
 function initAutio(){
     let jump = new Audio();
     jump.src="./sounds/jump.mp3";
@@ -412,20 +375,18 @@ function initAutio(){
     all_audio.push(hit);
 }
 
+/************************** END INIT *********************************/
+
 
 /* IZRIS VSEGA
 *  pobrišemo canvas, izrišemo mapo, izrišemo sovreažnika če je v viewframe-u, izrišemo igralca
-
-*
+*  EDIT: Imel 2 canvasa, enega za background, vendar se je izkazalo, da je to veliko večji preformance hit kot pa gain
+*  tako da sem to idejo zanemaril.
 * */
 
 const draw = function (){
     ctx.clearRect(0,0, width, height);
-
-
     drawTileMap();
-
-
     let currEnemy=checkIfEnemyInRange();
     if(currEnemy instanceof Object){
         if(Math.floor(currEnemy.x)===Math.floor(player.x) && Math.floor(currEnemy.y)===Math.floor(player.y) ||
@@ -461,15 +422,12 @@ const draw = function (){
                 }
                 else if(map[i][j]===7){
                     ctx.drawImage(tiles[10],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
-
                 }
-
                 else{
                     ctx.drawImage(tiles[0],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
                 }
                 if(map[i][j]===9){
                     ctx.drawImage(tiles[9],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY)-4*tileSide,70,128);
-
                 }
                 posX+=tileSide
             }
@@ -478,10 +436,7 @@ const draw = function (){
         }
     }
 };
-function init(){
-    initGame();
-    draw();
-}
+
 /*
  * Nastavitve za enemy-je, na vsake 30+65*i blokcov en enemy, št. enemijev je omejeno na 100
  */
@@ -492,6 +447,20 @@ function generateEnemy(){
         map[0][distanceBetweenEnemy]=initEnemy();
         distanceBetweenEnemy+=65;
         num_of_enemy++;
+    }
+}
+
+/*
+ * Preverjane ali je potrebno izrisati sovražnika
+ */
+function checkIfEnemyInRange(){
+    for(let i=0; i<widthCols+worldOffsetX; i++){
+        if(map[0][i] instanceof Object){
+            if(map[0][i].x<0){
+                map[0][i]=0
+            }
+            return map[0][i];
+        }
     }
 }
 
@@ -507,8 +476,8 @@ function initEnemy(){
         height : generateSize(),
         speed : generateSpeed(),
         jumping: false,
-        downtime: 9,
         walkframe: 0,
+        downtime: 9,
         bounced:false,
         draw: function(){
             ctx.drawImage(tiles[5],Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
@@ -542,155 +511,11 @@ function initEnemy(){
 }
 
 /*
- * Inicializacija kontrol za telefon, touchstart in touchend eventi, ko pritisnemo in spustimo
- */
-
-let canDestory ={
-    check:false,
-    event:null,
-};
-function initMobileControls(){
-    document.getElementById("LEFT").addEventListener("touchstart", function () {
-        keys[420]=true
-    },{passive:true});
-    document.getElementById("LEFT").addEventListener("touchend", function () {
-        keys[420]=false
-    },{passive:true});
-    document.getElementById("RIGHT").addEventListener("touchstart", function () {
-        keys[421]=true
-    },{passive:true});
-    document.getElementById("RIGHT").addEventListener("touchend", function () {
-        keys[421]=false
-    },{passive:true});
-    document.getElementById("JUMP").addEventListener("touchstart", function () {
-        keys[422]=true
-    },{passive:true});
-    document.getElementById("JUMP").addEventListener("touchend", function () {
-        keys[422]=false
-    },{passive:true});
-    document.getElementById("ACTION").addEventListener("touchstart", function () {
-        keys[423]=true
-    },{passive:true});
-    document.getElementById("ACTION").addEventListener("touchend", function () {
-        keys[423]=false
-    },{passive:true});
-    canvas.addEventListener("touchstart", function (e) {
-        canDestory.check=true;
-        all_audio[0].play();
-        all_audio[0].pause();
-        canDestory.event=e;
-
-
-    },{passive:true});
-    canvas.addEventListener("touchmove", function(e) {
-        canDestory.event=e;
-    },{passive:true});
-    canvas.addEventListener("touchend", function () {
-        canDestory.check=false;
-        canDestory.event=null;
-    },{passive:true});
-}
-
-//V primeru da nismo na telefonu pobrišemo dodatne hud elemente
-function setPhoneControlsOff(){
-    document.getElementById("LEFT").style.display = "none";
-    document.getElementById("RIGHT").style.display = "none";
-    document.getElementById("JUMP").style.display = "none";
-    document.getElementById("ACTION").style.display = "none";
-    canvas.addEventListener("mousedown", function (e) {
-        canDestory.check=true;
-        canDestory.event=e;
-
-
-    },{passive:true});
-    canvas.addEventListener("mousemove", function(e) {
-        canDestory.event=e;
-    },{passive:true});
-    canvas.addEventListener("mouseup", function () {
-        canDestory.check=false;
-        canDestory.event=null;
-    },{passive:true});
-}
-
-let initCont=false;
-//Izbira kontrol in nastavitev načina igre
-const controls = () =>{
-    if(onphone){
-        if(!initCont){
-            initMobileControls();
-            initCont=true;
-        }
-        keyboardControls();
-    }
-    else if(width>1000){
-        if(!initCont){
-            setPhoneControlsOff();
-
-            initCont=true;
-        }
-        keyboardControls();
-    }
-    /*
-     * Nevem če bo kdo bral kodo, v primeru da jo bo:
-     * Premikanje deluje na podlagi viewpointa playerja, torej njegov screen, ki ga vidi na telefonu,
-     * potrebno pa je tudi upoštevati, da imamo pred in za njim druge dele mape, zato moramo upoštevati sledeče stvari
-     *      ~tileOffsetX --> Potrebe ko imamo transition med premikanjem levo in desno
-     *      ~worldOffsetX --> Potreben, ker se premikamo po celotnem svetu, in moramo tako zamakniti celoten svet levo
-     *      ali deno
-     * Deluje na sledeč način, v resnici se vedno premikamo v lokalnem viewPointu, v primeru pa da pridemo na 1/4 ekrana
-     * levo ali desno, pa začnemo zamikati CELOTEN SVET, v smer kamor se premika igralec, s tem simuliramo premikanje
-     * igralca po večjem svetu, v resnici je vedno omejen na nek lokalen viewpoint (torej ekran telefona) in premikamo
-     * samo mapo.
-     *
-     */
-    function keyboardControls() {
-        //desno
-        if (keys[39] ||keys[421]) {
-            distance_traveled+=player.speed*tileSide;
-            collisionDetectionSpecificRight();
-            if(player.x+player.width>(canvas.width/widthCols)-widthCols/4){
-                if(Math.abs(tileOffsetX)>=tileSide){
-                    tileOffsetX=0;
-                    worldOffsetX++;
-                }
-                else{
-                    distance_traveled-=player.speed*tileSide;
-                    tileOffsetX-=player.speed*tileSide;
-                }
-            }
-            else
-                player.x+=player.speed;
-        }
-        //levo
-        if (keys[37] || keys[420]) {
-            distance_traveled-=player.speed*tileSide;
-            collisionDetectionSpecificLeft();
-            if(player.x<widthCols/4){
-                if(tileOffsetX>=tileSide){
-                    tileOffsetX=0;
-                    worldOffsetX--;
-                }
-                else{
-                    distance_traveled+=player.speed*tileSide;
-                    tileOffsetX+=player.speed*tileSide;
-                }
-            }
-            else
-                player.x-=player.speed;
-        }
-    }
-};
-
-//Variable, za postavljanje platform
-let canBuild=true;
-
-/*
  * Update funkcija, uporabljamo pravilen igralni način, glede na napravo,
  *  generiramo sovražnike, nastavimo kontrole, izrisujemo, preverjamo ali smo mrtvi, in vseskupaj kličemo šeenkrat
  *
  */
 function update(){
-
     if(onphone){
         mobileBasedGame()
     }
@@ -700,7 +525,6 @@ function update(){
     generateEnemy();
     controls();
 
-
     draw();
     checkifdied();
     checkIfGameWon();
@@ -708,12 +532,27 @@ function update(){
     requestAnimationFrame(update);
 
 }
+
+/*
+ * Inicializacija kontrol za telefon, touchstart in touchend eventi, ko pritisnemo in spustimo
+ */
+
+//Variable, za postavljanje platform
+let canBuild=true;
+/*
+ * Objekt, ki drži event in čekiranje za touch evente
+ */
+let canDestory ={
+    check:false,
+    event:null,
+};
+
 /*
  *Funkcija, ki je potrebna za pravilno obnašanje na telefonu, problem je bil z key-i, ker v resnici ne uporablamo
  * tipk, vendar vežemo event listenerje na dom objekte, teli pa poslušajo ali smo tappali, ali ne.
  */
 function mobileBasedGame(){
-
+    //Nov feature, z touch eventi ali mouse clickom lahko uničuješ mapo
     if(canDestory.check){
         let posX = Math.ceil(worldOffsetX+canDestory.event.touches[0].pageX/tileSide) - Math.floor(tileOffsetX/tileSide+0.25);
         let posY = Math.ceil(canDestory.event.touches[0].pageY/tileSide + tileOffsetY+0.25);
@@ -842,6 +681,8 @@ function computerBasedGame(){
 
     player.y+=gravity
 }
+
+//Funkcije za predvajanje zvoka
 function playJump(){
     all_audio[0].play();
     all_audio[0].currentTime = 0;
@@ -851,8 +692,6 @@ function playCoin(){
     all_audio[1].play();
     all_audio[1].currentTime = 0;
 }
-
-
 
 function handleWindowResize() {
     //V primeru da uporabnik spreminja dimenzije okna, se parametri spreminjajo
@@ -1092,6 +931,14 @@ function collisionDetectionSpecificRight(){
     return false;
 }
 
+/*
+ * Ko igralec umre in ima še življenj za restart, postavimo parametre HUD-a in repozicioniramo igralca.
+ */
+function restartCurrentlevel(){
+    initPlayer();
+    setHudParams();
+}
+
 //Funkcija ki preverja ali je igralec padel v luknjo, v primeru da je zmanjšamo življenje in postavimo igralca na neko
 // igralno površino, iz katere se bo lahko normalno premikal naprej.
 function checkifdied(){
@@ -1140,15 +987,39 @@ function killPlayer(){
     player_hp--;
     hp.innerHTML=player_hp;
     restartCurrentlevel();
-
-    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)]=1;
-    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
-    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+2]=1;
-    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
-    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)-1]=1;
+    if(playerpos>3){
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)]=1;
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+2]=1;
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
+        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)-1]=1;
+    }
     checkifdied()
 
 }
+
+function clearPlayerArea(playerpos){
+    if(playerpos>3){
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+2]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)-1]=0;
+
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+2]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)-1]=0;
+
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+2]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+1]=0;
+        map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)-1]=0;
+    }
+}
+
 //Nastavimo endgame screen, ugasnim igro na grd način vedar deluje, za ponoven zagon samo refreshamo igro
 function endGameLose(){
     let end = document.getElementById("end");
@@ -1188,12 +1059,137 @@ function calculatRandomWidth(){
     return Math.floor((Math.random()* (widthCols-7))+4);
 }
 
-/*
- 3 primeri
-    |         |
-    |         |
-    |         |
-    |         |
-    *----*----*
-    ceil si v spodnjem kotu
-*/
+/************************** INIT FUNKCIJE *****************************/
+
+
+/************************** KONTROLE *****************************/
+
+function initMobileControls(){
+    document.getElementById("LEFT").addEventListener("touchstart", function () {
+        keys[420]=true
+    },{passive:true});
+    document.getElementById("LEFT").addEventListener("touchend", function () {
+        keys[420]=false
+    },{passive:true});
+    document.getElementById("RIGHT").addEventListener("touchstart", function () {
+        keys[421]=true
+    },{passive:true});
+    document.getElementById("RIGHT").addEventListener("touchend", function () {
+        keys[421]=false
+    },{passive:true});
+    document.getElementById("JUMP").addEventListener("touchstart", function () {
+        keys[422]=true
+    },{passive:true});
+    document.getElementById("JUMP").addEventListener("touchend", function () {
+        keys[422]=false
+    },{passive:true});
+    document.getElementById("ACTION").addEventListener("touchstart", function () {
+        keys[423]=true
+    },{passive:true});
+    document.getElementById("ACTION").addEventListener("touchend", function () {
+        keys[423]=false
+    },{passive:true});
+    canvas.addEventListener("touchstart", function (e) {
+        canDestory.check=true;
+        all_audio[0].play();
+        all_audio[0].pause();
+        canDestory.event=e;
+
+    },{passive:true});
+    canvas.addEventListener("touchmove", function(e) {
+        canDestory.event=e;
+    },{passive:true});
+    canvas.addEventListener("touchend", function () {
+        canDestory.check=false;
+        canDestory.event=null;
+    },{passive:true});
+}
+
+//V primeru da nismo na telefonu pobrišemo dodatne hud elemente
+function setPhoneControlsOff(){
+    document.getElementById("LEFT").style.display = "none";
+    document.getElementById("RIGHT").style.display = "none";
+    document.getElementById("JUMP").style.display = "none";
+    document.getElementById("ACTION").style.display = "none";
+    canvas.addEventListener("mousedown", function (e) {
+        canDestory.check=true;
+        canDestory.event=e;
+
+    },{passive:true});
+    canvas.addEventListener("mousemove", function(e) {
+        canDestory.event=e;
+    },{passive:true});
+    canvas.addEventListener("mouseup", function () {
+        canDestory.check=false;
+        canDestory.event=null;
+    },{passive:true});
+}
+
+let initCont=false;
+//Izbira kontrol in nastavitev načina igre
+const controls = () =>{
+    if(onphone){
+        if(!initCont){
+            initMobileControls();
+            initCont=true;
+        }
+        keyboardControls();
+    }
+    else if(width>1000){
+        if(!initCont){
+            setPhoneControlsOff();
+
+            initCont=true;
+        }
+        keyboardControls();
+    }
+    /*
+     * Nevem če bo kdo bral kodo, v primeru da jo bo:
+     * Premikanje deluje na podlagi viewpointa playerja, torej njegov screen, ki ga vidi na telefonu,
+     * potrebno pa je tudi upoštevati, da imamo pred in za njim druge dele mape, zato moramo upoštevati sledeče stvari
+     *      ~tileOffsetX --> Potrebe ko imamo transition med premikanjem levo in desno
+     *      ~worldOffsetX --> Potreben, ker se premikamo po celotnem svetu, in moramo tako zamakniti celoten svet levo
+     *      ali deno
+     * Deluje na sledeč način, v resnici se vedno premikamo v lokalnem viewPointu, v primeru pa da pridemo na 1/4 ekrana
+     * levo ali desno, pa začnemo zamikati CELOTEN SVET, v smer kamor se premika igralec, s tem simuliramo premikanje
+     * igralca po večjem svetu, v resnici je vedno omejen na nek lokalen viewpoint (torej ekran telefona) in premikamo
+     * samo mapo.
+     *
+     */
+    function keyboardControls() {
+        //desno
+        if (keys[39] ||keys[421]) {
+            distance_traveled+=player.speed*tileSide;
+            collisionDetectionSpecificRight();
+            if(player.x+player.width>(canvas.width/widthCols)-widthCols/4){
+                if(Math.abs(tileOffsetX)>=tileSide){
+                    tileOffsetX=0;
+                    worldOffsetX++;
+                }
+                else{
+                    distance_traveled-=player.speed*tileSide;
+                    tileOffsetX-=player.speed*tileSide;
+                }
+            }
+            else
+                player.x+=player.speed;
+        }
+        //levo
+        if (keys[37] || keys[420]) {
+            distance_traveled-=player.speed*tileSide;
+            collisionDetectionSpecificLeft();
+            if(player.x<widthCols/4){
+                if(tileOffsetX>=tileSide){
+                    tileOffsetX=0;
+                    worldOffsetX--;
+                }
+                else{
+                    distance_traveled+=player.speed*tileSide;
+                    tileOffsetX+=player.speed*tileSide;
+                }
+            }
+            else
+                player.x-=player.speed;
+        }
+    }
+};
