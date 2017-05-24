@@ -29,8 +29,7 @@ let canvas, ctx, width, height, player,
     num_of_platforms=5,
     powerJumps=5,
     player_coins=0,
-    ctx_back,canvas_back;
-
+    distance_traveled=0;
 
 //Spremenljivka za čekiranje, ali smo na telefonu
 let onphone=false;
@@ -39,7 +38,7 @@ let shakeEvents=false;
 function checkIfRunningOnPhone(){
     //Regex za preverjanje ali je trenutna naprava na telefonu
     window.mobilecheck = function() {
-        var check = false;
+        let check = false;
         (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
         return check;
     };
@@ -103,7 +102,7 @@ function restartCurrentlevel(){
  *
  */
 function clearPlayerArea(playerpos){
-    if(playerpos<3){
+    if(playerpos>3){
         map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)]=0;
         map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
         map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+2]=0;
@@ -123,14 +122,6 @@ function clearPlayerArea(playerpos){
         map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)-1]=0;
     }
 }
-function initBackCanvas() {
-    canvas_back=document.getElementById("background-layer");
-    ctx_back = canvas_back.getContext("2d");
-    ctx_back.width  = window.innerWidth;
-    ctx_back.height = window.innerHeight;
-    width_back=canvas_back.width;
-    height_back=canvas_back.height;
-}
 
 const initGame = function(){
     onphone=checkIfRunningOnPhone();
@@ -138,7 +129,7 @@ const initGame = function(){
     initPlayer();
     initTiles();
     initAutio();
-    initBackCanvas();
+
     all_audio[2].play();
     createTileMap();
     setHudParams();
@@ -162,6 +153,7 @@ const initGame = function(){
                 let z = e.accelerationIncludingGravity.z;
                 if(Math.abs(y)>10 && Math.abs(x)>10 && Math.abs(z)){
                     window.navigator.vibrate(200);
+                    num_of_platforms=0;
                     createTileMap();
                     makeMapDynamic();
                     clearPlayerArea(Math.ceil(player.y));
@@ -192,15 +184,13 @@ const initGame = function(){
     function createTileMap(){
         for(let i=0; i<100; i++){
             if(i===heightCols){
-                map.push(Array.apply(null, Array(100)).map(Number.prototype.valueOf,1));
+                map.push(Array.apply(null, new Array(100)).map(Number.prototype.valueOf,1));
             }
             else{
-                map.push(Array.apply(null, Array(10000)).map(Number.prototype.valueOf,0));
+                map.push(Array.apply(null, new Array(10000)).map(Number.prototype.valueOf,0));
             }
         }
-        map[7][10]=1;
-        map[8][10]=1;
-        map[9][10]=1;
+
         const preSet = [
             [0,0,1,0,0],
             [0,1,1,1,0],
@@ -260,8 +250,11 @@ const initGame = function(){
         plpic.src="./imgs/abomination.png";
         tiles.push(plpic);
         let back_new= new Image();
-        back_new.src="./imgs/back_proper.png";
+        back_new.src="./imgs/tree_70x128.png";
         tiles.push(back_new);
+        let back_cloud= new Image();
+        back_cloud.src="./imgs/back_proper.png";
+        tiles.push(back_cloud);
 
     }
     //player size, player speed, player jump
@@ -317,6 +310,12 @@ const initGame = function(){
             map[Rheight+1][distanceBetweenSquares+1]=1;
             distanceBetweenSquares+=distanceBetweenSquares+calculateRandomIntervalForPlatforms();
         }
+        let numberOftrees=100000;
+        let distanceBetweenTrees=40;
+        for(let t=0; t<numberOftrees; t++){
+            map[heightCols-1][distanceBetweenTrees]=9;
+            distanceBetweenTrees+=10;
+        }
 
     }
     //Generacija power-upov, in sicer lune, ki povečajo št. platform ki jih lahko igralec postavi
@@ -338,17 +337,20 @@ const initGame = function(){
                 map[rHeight][distBetwCoin]=3;
             distBetwCoin+=30;
         }
+        let numOfHearts=100;
+        let distBetwHeart=150;
+        for(let j=0; j<numOfHearts; j++){
+            let rHeight=calculateRandomHeight();
+            if(!checkIfIsFloor(rHeight,distBetwHeart))
+                map[rHeight][distBetwHeart]=7;
+            distBetwHeart+=150;
+        }
     }
     //Funkcije, za naključne elemente v igri
     function calculateRandomIntervalForPlatforms(){
         return Math.floor((Math.random() * 3)+1);
     }
-    function calculateRandomHeight() {
-        return Math.floor((Math.random() * (heightCols-7))+4);
-    }
-    function calculatRandomWidth(){
-        return Math.floor((Math.random()* (widthCols-7))+4);
-    }
+
 };
 
 /*
@@ -368,6 +370,7 @@ function initPlayer(){
         draw: function(){
             ctx.drawImage(tiles[8],Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
                 Math.floor(this.height*tileSide)+7)
+
         }
     }
 }
@@ -388,23 +391,23 @@ function checkIfEnemyInRange(){
 }
 
 function initAutio(){
-    var jump = new Audio()
+    let jump = new Audio();
     jump.src="./sounds/jump.mp3";
     all_audio.push(jump);
-    var coin = new Audio();
+    let coin = new Audio();
     coin.src='./sounds/coin.mp3';
     all_audio.push(coin);
-    var general_sounds= new Audio();
+    let general_sounds= new Audio();
     general_sounds.src='./sounds/music.mp3';
     general_sounds.loop = true;
     all_audio.push(general_sounds);
-    var gamewin = new Audio()
+    let gamewin = new Audio();
     gamewin.src="./sounds/gamewin.mp3";
     all_audio.push(gamewin);
-    var gameloose = new Audio()
+    let gameloose = new Audio();
     gameloose.src="./sounds/gameover.mp3";
     all_audio.push(gameloose);
-    var hit = new Audio()
+    let hit = new Audio();
     hit.src="./sounds/hit.mp3";
     all_audio.push(hit);
 }
@@ -415,9 +418,14 @@ function initAutio(){
 
 *
 * */
+
 const draw = function (){
     ctx.clearRect(0,0, width, height);
+
+
     drawTileMap();
+
+
     let currEnemy=checkIfEnemyInRange();
     if(currEnemy instanceof Object){
         if(Math.floor(currEnemy.x)===Math.floor(player.x) && Math.floor(currEnemy.y)===Math.floor(player.y) ||
@@ -435,6 +443,7 @@ const draw = function (){
      * Funkcija za izris same mape, +4, -4 zaradi tega ker moramo pre-renderat vsaj nekaj frame-ov naprej, da je
      * smooth transition med premikanjem.
      */
+
     function drawTileMap(){
         //+3, ker izrisujemo en tile prej(levo), ker indeksiramo z 0, in tile za tem
         let posX=-Math.floor(tileSide);
@@ -450,9 +459,17 @@ const draw = function (){
                 else if(map[i][j]===3){
                     ctx.drawImage(tiles[7],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
                 }
+                else if(map[i][j]===7){
+                    ctx.drawImage(tiles[10],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
+
+                }
+
                 else{
                     ctx.drawImage(tiles[0],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
-                    ctx_back.drawImage(tiles[1],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide)
+                }
+                if(map[i][j]===9){
+                    ctx.drawImage(tiles[9],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY)-4*tileSide,70,128);
+
                 }
                 posX+=tileSide
             }
@@ -461,7 +478,6 @@ const draw = function (){
         }
     }
 };
-
 function init(){
     initGame();
     draw();
@@ -491,8 +507,8 @@ function initEnemy(){
         height : generateSize(),
         speed : generateSpeed(),
         jumping: false,
-        walkFrame: 0,
         downtime: 9,
+        walkframe: 0,
         bounced:false,
         draw: function(){
             ctx.drawImage(tiles[5],Math.floor(this.x*tileSide),Math.floor(this.y*tileSide),Math.floor(this.width*tileSide),
@@ -601,7 +617,6 @@ let initCont=false;
 const controls = () =>{
     if(onphone){
         if(!initCont){
-
             initMobileControls();
             initCont=true;
         }
@@ -610,6 +625,7 @@ const controls = () =>{
     else if(width>1000){
         if(!initCont){
             setPhoneControlsOff();
+
             initCont=true;
         }
         keyboardControls();
@@ -630,6 +646,7 @@ const controls = () =>{
     function keyboardControls() {
         //desno
         if (keys[39] ||keys[421]) {
+            distance_traveled+=player.speed*tileSide;
             collisionDetectionSpecificRight();
             if(player.x+player.width>(canvas.width/widthCols)-widthCols/4){
                 if(Math.abs(tileOffsetX)>=tileSide){
@@ -637,15 +654,16 @@ const controls = () =>{
                     worldOffsetX++;
                 }
                 else{
+                    distance_traveled-=player.speed*tileSide;
                     tileOffsetX-=player.speed*tileSide;
                 }
             }
             else
                 player.x+=player.speed;
-                player.walkFrame++;
         }
         //levo
         if (keys[37] || keys[420]) {
+            distance_traveled-=player.speed*tileSide;
             collisionDetectionSpecificLeft();
             if(player.x<widthCols/4){
                 if(tileOffsetX>=tileSide){
@@ -653,12 +671,12 @@ const controls = () =>{
                     worldOffsetX--;
                 }
                 else{
+                    distance_traveled+=player.speed*tileSide;
                     tileOffsetX+=player.speed*tileSide;
                 }
             }
             else
                 player.x-=player.speed;
-                player.walkFrame++;
         }
     }
 };
@@ -698,7 +716,7 @@ function mobileBasedGame(){
 
     if(canDestory.check){
         let posX = Math.ceil(worldOffsetX+canDestory.event.touches[0].pageX/tileSide) - Math.floor(tileOffsetX/tileSide+0.25);
-        let posY = Math.ceil(canDestory.event.touches[0].pageY/tileSide + tileOffsetY+0.25)
+        let posY = Math.ceil(canDestory.event.touches[0].pageY/tileSide + tileOffsetY+0.25);
         if(map[posY][posX]===1 && posY!=1){
             map[posY][posX]=0;
         }
@@ -769,7 +787,7 @@ function mobileBasedGame(){
 function computerBasedGame(){
     if(canDestory.check){
         let posX = Math.ceil(worldOffsetX+canDestory.event.pageX/tileSide) - Math.floor(tileOffsetX/tileSide);
-        let posY = Math.ceil(canDestory.event.pageY/tileSide + tileOffsetY+0.25)
+        let posY = Math.ceil(canDestory.event.pageY/tileSide + tileOffsetY+0.25);
         if(map[posY][posX]===1 && posY!=1){
             map[posY][posX]=0;
         }
@@ -799,14 +817,14 @@ function computerBasedGame(){
     if(player.jumping && nextJumpPossible && keys[38] && player.numofjumps>0){
         canBuild=true;
         gravity=-0.5;
-        playJump()
+        playJump();
         player.numofjumps--;
     }
 
     if(collisionDetectionSpecificDownDontChange() && !player.jumping){
         player.y=player.y-player.speed;
         if(keys[38]){
-            playJump()
+            playJump();
             canBuild=true;
             gravity=-0.5;
             player.jumping=true;
@@ -871,6 +889,10 @@ function checkIfIsMoon(i,j){
     return map[i][j]===2;
 }
 
+function checkIfIsHeart(i,j){
+    return map[i][j]===7;
+}
+
 /*
  * Collision detection, uporablja se axis aligned bounding box, na kratko kaj je point tega
  * dejansko gledamo levi zgornji rob, in desni spodnji rob, na poglagi tega gledamo ali je v mapi element, ki je določen
@@ -903,14 +925,14 @@ function collisionDetectionSpecificDown(){
     if(checkIfIsSun(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
         map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX]=0;
         let curval=parseInt(coin.innerHTML)+1;
-        playCoin()
+        playCoin();
         player_coins++;
         coin.innerHTML=curval
     }
-    if(checkIfIsSun(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+    else if(checkIfIsSun(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
         map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0;
         let curval=parseInt(coin.innerHTML)+1;
-        playCoin()
+        playCoin();
         player_coins++;
         coin.innerHTML=curval
     }
@@ -919,10 +941,21 @@ function collisionDetectionSpecificDown(){
         mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
         num_of_platforms+=2;
     }
-    if(checkIfIsMoon(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+    else if(checkIfIsMoon(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
         map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0;
         mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
         num_of_platforms+=2;
+    }
+    if(checkIfIsHeart(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
+        map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX]=0;
+        hp.innerHTML=parseInt(hp.innerHTML)+1;
+        player_hp++;
+    }
+    else if(checkIfIsHeart(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+        map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0;
+        mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
+        hp.innerHTML=parseInt(hp.innerHTML)+1;
+        player_hp++;
     }
     return false;
 }
@@ -938,14 +971,14 @@ function collisionDetectionSpecificDownDontChange(){
     if(checkIfIsSun(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
-        playCoin()
+        playCoin();
         player_coins++;
         coin.innerHTML=curval
     }
-    if(checkIfIsSun(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+    else if(checkIfIsSun(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
-        playCoin()
+        playCoin();
         player_coins++;
         coin.innerHTML=curval
     }
@@ -954,10 +987,22 @@ function collisionDetectionSpecificDownDontChange(){
         mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
         num_of_platforms+=2;
     }
-    if(checkIfIsMoon(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+    else if(checkIfIsMoon(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
         mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
         num_of_platforms+=2;
+    }
+    if(checkIfIsHeart(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
+        mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
+        hp.innerHTML=parseInt(hp.innerHTML)+1;
+        player_hp++;
+    }
+    else if(checkIfIsHeart(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
+        mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
+        hp.innerHTML=parseInt(hp.innerHTML)+1;
+        player_hp++;
     }
     return false;
 }
@@ -965,35 +1010,45 @@ function collisionDetectionSpecificDownDontChange(){
 //Testiranje, če se zabijemo levo
 function collisionDetectionSpecificLeft(){
     let tmp = player;
-    if(
-        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))||
-        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
+    if(//note4me, added *-1, fixed left collision for some reason
+        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide)*-1)+player.width-0.15))||
+        checkIfIsFloor(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide)*-1)+player.width-0.15))){
         player.x = tmp.x + tmp.speed;
         return true;
     }
     if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
-        playCoin()
+        playCoin();
         player_coins++;
         coin.innerHTML=curval
     }
-        if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
-        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
-        let curval=parseInt(coin.innerHTML)+1;
-            player_coins++;
-            playCoin()
-        coin.innerHTML=curval
+    else if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
+    map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
+    let curval=parseInt(coin.innerHTML)+1;
+        player_coins++;
+        playCoin();
+    coin.innerHTML=curval
     }
     if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
         mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
         num_of_platforms+=2;
     }
-    if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
+    else if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
         mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
         num_of_platforms+=2;
+    }
+    if(checkIfIsHeart(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
+        hp.innerHTML=parseInt(hp.innerHTML)+1;
+        player_hp++;
+    }
+    else if(checkIfIsHeart(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
+        hp.innerHTML=parseInt(hp.innerHTML)+1;
+        player_hp++;
     }
     return false;
 }
@@ -1010,30 +1065,29 @@ function collisionDetectionSpecificRight(){
     if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
-        playCoin()
+        playCoin();
         player_coins++;
         coin.innerHTML=curval
     }
-    if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
+    else if(checkIfIsSun(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
 
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
         let curval=parseInt(coin.innerHTML)+1;
         player_coins++;
-        playCoin()
+        playCoin();
         coin.innerHTML=curval
     }
 
-    if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
+    if(checkIfIsHeart(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
-        mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
-        num_of_platforms+=2;
+        hp.innerHTML=parseInt(hp.innerHTML)+1;
+        player_hp++;
     }
-    if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
-
+    else if(checkIfIsHeart(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
+        hp.innerHTML=parseInt(hp.innerHTML)+1;
+        player_hp++;
 
-        mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
-        num_of_platforms+=2;
     }
     return false;
 }
@@ -1042,8 +1096,8 @@ function collisionDetectionSpecificRight(){
 // igralno površino, iz katere se bo lahko normalno premikal naprej.
 function checkifdied(){
     if(Math.floor(player.y)>heightCols){
-        all_audio[5].play()
-        window.navigator.vibrate(200)
+        all_audio[5].play();
+        window.navigator.vibrate(200);
         player_hp--;
         hp.innerHTML=player_hp;
         restartCurrentlevel();
@@ -1074,15 +1128,15 @@ function checkifdied(){
 
     }
     if(player_hp===0){
-        window.navigator.vibrate(1000)
+        window.navigator.vibrate(1000);
         endGameLose()
     }
 }
 
 //Ubijemo igralca, potrebno za kolizijo med sovražnikom
 function killPlayer(){
-    all_audio[5].play()
-    window.navigator.vibrate(500)
+    all_audio[5].play();
+    window.navigator.vibrate(500);
     player_hp--;
     hp.innerHTML=player_hp;
     restartCurrentlevel();
@@ -1097,17 +1151,17 @@ function killPlayer(){
 }
 //Nastavimo endgame screen, ugasnim igro na grd način vedar deluje, za ponoven zagon samo refreshamo igro
 function endGameLose(){
-    var end = document.getElementById("end");
-    end.innerHTML="YOU LOST<br> your score was "+player_coins;
-    all_audio[4].play()
+    let end = document.getElementById("end");
+    end.innerHTML="YOU LOST<br> your score was "+player_coins+", <br> You traveled "+Math.floor(distance_traveled/tileSide)+" blocks";
+    all_audio[4].play();
     ctx=null;
 
 }
 
 function checkIfGameWon(){
-    if(parseInt(document.getElementById("coin").innerHTML)===50) {
-        var end = document.getElementById("end");
-        end.innerHTML = "YOU WON<br> CONGRATS MY DUDE";
+    if(parseInt(document.getElementById("coin").innerHTML)>40) {
+        let end = document.getElementById("end");
+        end.innerHTML = "YOU WON<br> CONGRATS MY DUDE <br> You traveled "+Math.floor(distance_traveled/tileSide)+"blocks";
         all_audio[3].play();
         ctx = null;
     }
@@ -1125,6 +1179,13 @@ function platformCreator(){
         mytiles.innerHTML=parseInt(mytiles.innerHTML)-1;
 
     }
+}
+
+function calculateRandomHeight() {
+    return Math.floor((Math.random() * (heightCols-7))+4);
+}
+function calculatRandomWidth(){
+    return Math.floor((Math.random()* (widthCols-7))+4);
 }
 
 /*
