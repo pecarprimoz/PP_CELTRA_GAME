@@ -20,7 +20,7 @@ Namen je igrat v pokoncnem nacinu, tko da zarotiras telefon in refreshas page za
 
 ### Artist shoutout
 
- * Lanea Zimmerman, dirt tiles used in this game, also the moon and background
+ * Lanea Zimmerman, dirt tiles used in this game, also the moon and background https://opengameart.org/users/sharm
  * Buch @ https://opengameart.org/users/buch; the knight as the enemy
 
 ### DISCLAIMER
