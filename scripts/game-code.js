@@ -1,6 +1,6 @@
 /*
 ****************************************
-*
+
 Made by Primož Pečar, fri vsš 2 letnik
     Kontakt: pppecar@gmail.com
  ʕ•ᴥ•ʔ Pls hire me as a gamedev ʕ•ᴥ•ʔ
@@ -131,6 +131,7 @@ const initGame = function(){
                 if(Math.abs(y)>10 && Math.abs(x)>10 && Math.abs(z)){
                     window.navigator.vibrate(200);
                     num_of_platforms=0;
+                    mytiles.innerHTML=0;
                     createTileMap();
                     makeMapDynamic();
                     clearPlayerArea(Math.ceil(player.y));
@@ -145,7 +146,6 @@ const initGame = function(){
         else{
             tileSide=Math.round(width/25);
         }
-
         //Viewpoint igralca, rabimo za izris igralne površine
         widthCols=tileSide;
         heightCols=Math.ceil(height/tileSide);
@@ -228,6 +228,9 @@ const initGame = function(){
         let back_cloud= new Image();
         back_cloud.src="./imgs/back_proper.png";
         tiles.push(back_cloud);
+        let speed= new Image();
+        speed.src="./imgs/speed.png";
+        tiles.push(speed);
 
     }
     //player size, player speed, player jump
@@ -319,6 +322,15 @@ const initGame = function(){
                 map[rHeight][distBetwHeart]=7;
             distBetwHeart+=150;
         }
+
+        let numOfSpeed=10;
+        let distBetwSpeed=250;
+        for(let j=0; j<numOfSpeed; j++){
+            let rHeight=calculateRandomHeight();
+            if(!checkIfIsFloor(rHeight,distBetwSpeed))
+                map[rHeight][distBetwSpeed]=11;
+            distBetwSpeed+=250;
+        }
     }
     //Funkcije, za naključne elemente v igri
     function calculateRandomIntervalForPlatforms(){
@@ -390,12 +402,14 @@ const draw = function (){
     let currEnemy=checkIfEnemyInRange();
     if(currEnemy instanceof Object){
         if(Math.floor(currEnemy.x)===Math.floor(player.x) && Math.floor(currEnemy.y)===Math.floor(player.y) ||
-            Math.ceil(currEnemy.x)===Math.ceil(player.x) && Math.ceil(currEnemy.y)===Math.ceil(player.y) ){
+            Math.ceil(currEnemy.x)===Math.ceil(player.x) && Math.ceil(currEnemy.y)===Math.ceil(player.y) ||
+            Math.floor(currEnemy.x)===Math.floor(player.x) && Math.ceil(currEnemy.y)===Math.ceil(player.y) ||
+            Math.ceil(currEnemy.x)===Math.ceil(player.x) && Math.floor(currEnemy.y)===Math.floor(player.y)){
             killPlayer()
         }
         currEnemy.draw();
         currEnemy.movement();
-        currEnemy.x-=0.1
+        currEnemy.x-=0.2
 
     }
     player.draw();
@@ -423,11 +437,15 @@ const draw = function (){
                 else if(map[i][j]===7){
                     ctx.drawImage(tiles[10],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
                 }
+                else if(map[i][j]===11){
+                    ctx.drawImage(tiles[11],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
+                }
+
                 else{
                     ctx.drawImage(tiles[0],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY),tileSide,tileSide);
                 }
                 if(map[i][j]===9){
-                    ctx.drawImage(tiles[9],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY)-4*tileSide,70,128);
+                    ctx.drawImage(tiles[9],Math.round(posX+tileOffsetX),Math.round(posY+tileOffsetY)-128+tileSide,70,128);
                 }
                 posX+=tileSide
             }
@@ -472,8 +490,8 @@ function initEnemy(){
     enemy = {
         x : widthCols-widthCols/12+worldOffsetX,
         y : heightCols/2+worldOffsetY,
-        width : generateSize(),
-        height : generateSize(),
+        width : 1,
+        height : 1,
         speed : generateSpeed(),
         jumping: false,
         walkframe: 0,
@@ -502,10 +520,7 @@ function initEnemy(){
         }
     };
     function generateSpeed(){
-        return (Math.random())+0.1
-    }
-    function generateSize(){
-        return (Math.random() *2)+1
+        return (Math.random()*0.5)+0.1
     }
     return enemy;
 }
@@ -727,9 +742,11 @@ function checkIfIsSun(i,j){
 function checkIfIsMoon(i,j){
     return map[i][j]===2;
 }
-
 function checkIfIsHeart(i,j){
     return map[i][j]===7;
+}
+function checkIfIsSpeed(i,j){
+    return map[i][j]===11;
 }
 
 /*
@@ -748,6 +765,52 @@ function collisionDetectionSpecificUp(){
         checkIfIsFloor(Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
         player.y=tmp.y+tmp.speed;
         return true;
+    }
+    if(checkIfIsSun(Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+        map[Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0;
+        let curval=parseInt(coin.innerHTML)+1;
+        playCoin();
+        player_coins++;
+        coin.innerHTML=curval
+    }
+    else if(checkIfIsSun(Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
+        map[Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX)]=0;
+        let curval=parseInt(coin.innerHTML)+1;
+        playCoin();
+        player_coins++;
+        coin.innerHTML=curval
+    }
+    if(checkIfIsMoon(Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+        map[Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0;
+        mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
+        num_of_platforms+=2;
+    }
+    else if(checkIfIsMoon(Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
+        map[Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX)]=0;
+        mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
+        num_of_platforms+=2;
+    }
+    if(checkIfIsHeart(Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+        map[Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0;
+        hp.innerHTML=parseInt(hp.innerHTML)+1;
+        player_hp++;
+    }
+    else if(checkIfIsHeart(Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
+        map[Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX)]=0;
+        hp.innerHTML=parseInt(hp.innerHTML)+1;
+        player_hp++;
+    }
+    if(checkIfIsSpeed(Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+        map[Math.floor(player.y + player.height+worldOffsetY-0.15  + tileOffsetY/tileSide)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0;
+        if(player.speed<0.25){
+            player.speed+=0.01
+        }
+    }
+    else if(checkIfIsSpeed(Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide), Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX))){
+        map[Math.floor(player.y + player.height+worldOffsetY-0.15 + tileOffsetY/tileSide)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+worldOffsetX)]=0;
+        if(player.speed<0.25){
+            player.speed+=0.01
+        }
     }
     return false;
 }
@@ -796,6 +859,18 @@ function collisionDetectionSpecificDown(){
         hp.innerHTML=parseInt(hp.innerHTML)+1;
         player_hp++;
     }
+    if(checkIfIsSpeed(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
+        map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX]=0;
+        if(player.speed<0.25){
+            player.speed+=0.01
+        }
+    }
+    else if(checkIfIsSpeed(Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+        map[Math.ceil(player.y + player.height + tileOffsetY/tileSide +worldOffsetY+0.15)][Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX]=0;
+        if(player.speed<0.25){
+            player.speed+=0.01
+        }
+    }
     return false;
 }
 
@@ -843,6 +918,18 @@ function collisionDetectionSpecificDownDontChange(){
         hp.innerHTML=parseInt(hp.innerHTML)+1;
         player_hp++;
     }
+    if(checkIfIsSpeed(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide))+worldOffsetX)){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
+        if(player.speed<0.25){
+            player.speed+=0.01
+        }
+    }
+    else if(checkIfIsSpeed(Math.ceil(player.y+tmp.speed + player.height + tileOffsetY/tileSide +worldOffsetY+0.15),Math.ceil(player.x + Math.abs(tileOffsetX/tileSide)+player.width)+worldOffsetX)){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
+        if(player.speed<0.25){
+            player.speed+=0.01
+        }
+    }
     return false;
 }
 
@@ -889,6 +976,18 @@ function collisionDetectionSpecificLeft(){
         hp.innerHTML=parseInt(hp.innerHTML)+1;
         player_hp++;
     }
+    if(checkIfIsSpeed(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
+        if(player.speed<0.25){
+            player.speed+=0.01
+        }
+    }
+    else if(checkIfIsSpeed(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15))){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.floor(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width-0.15)]=0;
+        if(player.speed<0.25){
+            player.speed+=0.01
+        }
+    }
     return false;
 }
 
@@ -916,6 +1015,17 @@ function collisionDetectionSpecificRight(){
         playCoin();
         coin.innerHTML=curval
     }
+    if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
+        mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
+        num_of_platforms+=2;
+    }
+    else if(checkIfIsMoon(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
+        mytiles.innerHTML=parseInt(mytiles.innerHTML)+2;
+        num_of_platforms+=2;
+
+    }
 
     if(checkIfIsHeart(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
@@ -926,6 +1036,19 @@ function collisionDetectionSpecificRight(){
         map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
         hp.innerHTML=parseInt(hp.innerHTML)+1;
         player_hp++;
+
+    }
+    if(checkIfIsSpeed(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide), Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
+        if(player.speed<0.25){
+            player.speed+=0.01
+        }
+    }
+    else if(checkIfIsSpeed(Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height, Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15))){
+        map[Math.ceil(player.y+worldOffsetY + tileOffsetY/tileSide)+player.height][Math.ceil(player.x+(worldOffsetX+Math.abs(tileOffsetX/tileSide))+player.width+0.15)]=0;
+        if(player.speed<0.25){
+            player.speed+=0.01
+        }
 
     }
     return false;
@@ -987,14 +1110,30 @@ function killPlayer(){
     player_hp--;
     hp.innerHTML=player_hp;
     restartCurrentlevel();
-    if(Math.ceil(player.y)>3){
-        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)]=1;
-        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
-        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+2]=1;
-        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
-        map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)-1]=1;
-    }
-    checkifdied()
+
+    map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)]=0;
+    map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
+    map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+2]=0;
+    map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)+1]=0;
+    map[Math.ceil(player.y+worldOffsetY)-2][Math.ceil(player.x+worldOffsetX)-1]=0;
+
+    map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)]=0;
+    map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+1]=0;
+    map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+2]=0;
+    map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)+1]=0;
+    map[Math.ceil(player.y+worldOffsetY)-1][Math.ceil(player.x+worldOffsetX)-1]=0;
+
+    map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)]=0;
+    map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+1]=0;
+    map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+2]=0;
+    map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)+1]=0;
+    map[Math.ceil(player.y+worldOffsetY)][Math.ceil(player.x+worldOffsetX)-1]=0;
+
+    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)]=1;
+    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
+    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+2]=1;
+    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)+1]=1;
+    map[Math.ceil(player.y+worldOffsetY)+2][Math.ceil(player.x+worldOffsetX)-1]=1;
 
 }
 
@@ -1030,7 +1169,7 @@ function endGameLose(){
 }
 
 function checkIfGameWon(){
-    if(parseInt(document.getElementById("coin").innerHTML)>40) {
+    if(parseInt(document.getElementById("coin").innerHTML)>30) {
         let end = document.getElementById("end");
         end.innerHTML = "YOU WON<br> CONGRATS MY DUDE <br> You traveled "+Math.floor(distance_traveled/tileSide)+"blocks";
         all_audio[3].play();
@@ -1058,9 +1197,6 @@ function calculateRandomHeight() {
 function calculatRandomWidth(){
     return Math.floor((Math.random()* (widthCols-7))+4);
 }
-
-/************************** INIT FUNKCIJE *****************************/
-
 
 /************************** KONTROLE *****************************/
 

@@ -60,14 +60,15 @@ Ker se igra poganja v brskalniku in namenjena je za telefone, je bilo potrebno n
 Prvotno sem poskušal vse delati v pikslih, torej izris vsega je bil na canvas po x,y koordinatah. To se izkaže za nočno moro saj je nemogoče preverjati collision detectiona, movement je skoraj nemogoč po nekih fizikalnih pravilih in sem to kmalu zavrgel. 
 Odločil sem se za tilemapping, tilemapping ti omogoča, da igralčev pogled na igro razdeliš na tako imenovan tile map. Tile map predstavlja celoten ekran, razdeljen na "blokce". Tako lahko celotno igralno površino predstavimo kot en ogromed 2d seznam, kjer pa imamo vrednosti vsakega blokca posebaj. Tako samo spremenimo parameter v seznamu in posledično tudi karekteristiko igre. Kot primer, v moji igri imam vseskupaj 8 različnih blokcov:
 \begin{enumerate}
-	\item Block 0 predstavlja backgroud, background ne vpliva na igralca, je pomemben samo za izris
+	\item Block 0 predstavlja backgroud, background ne vpliva na igralca, je pomemben samo za izris.
 	\item Block 1 predstavlja tile oz. površino v katero se lahko zabijemo, celoten level je sestavljen iz
-	različnih sekvenc Blokov 1
-	\item Block 2 predstavlja sonce, sonca pobiramo in s tem višamo svoj score
-	\item Block 3 predstavlja luno, luna poveča št. platform, ki jih lahko postavlja igralec
-	\item Block 4 predstavlja sovražnika, ta se premika po mapi
+	različnih sekvenc Blokov 1.
+	\item Block 2 predstavlja sonce, sonca pobiramo in s tem višamo svoj score.
+	\item Block 3 predstavlja luno, luna poveča št. platform, ki jih lahko postavlja igralec.
+	\item Block 4 predstavlja sovražnika, ta se premika po mapi.
 	\item Block 5 predstavlja srce, katere igralcu povnejo igralcu življenja.
-	\item Block 6 predstavlja devo, uporabljeno za background
+	\item Block 6 predstavlja devo, uporabljeno za background.
+	\item Block 7 predstavlja zvezdo, ta nam omogoča hitrejšo premikanje, hitrost igralca se ponastavi ob smrti.
 \end{enumerate}
 \pagebreak
 \subsection{Detekcija kolizij}
@@ -128,12 +129,15 @@ V igro sem implementiral še zvočne efekte, vendar te delujejo le na PC-ju. Pro
 
 Ko igralec trese telefon se spožijo vibracije, prav tako se sprožijo ko igralec umre, zgubi ali zmaga.
 
-\section{Primeri igranja}
+\section{Game mechanics}
 
 Tukaj bom predstavil vse mehanike igre, za PC in telefon.
 
 \subsection{Uničevanje blokov}
 Če uporabnik igra na PC-ju, lahko blokce uničuje z klikom na njih, enako pri telefonu, igralec lahko z pritiskom na gumb s prstom uničuje vse bloke, delujejo tudi drag eventi.
+
+\subsection{Double jump}
+Igralec lahko skoči dvakrat, tudi če pade iz bloka lahko skoči še najmanj enkrat, tako imamo situacije padanje in se lahko rešimo z platformo ali s skokom.
 
 \subsection{Potres}
 Mehanika, ki je podprta le za mobilne naprave. Igralec lahko z tresljaji telefona na novo generira teren in si s tem olajša igranje. Za konkreten primer se premaknemo 15 blokcov naprej in tresemo telefon.
@@ -163,11 +167,18 @@ Sam projekt je bil zanimiv, vendar večkrat med programiranjem sem čutil krutos
 
 \section{Koda in kontakt}
 
-Koda se nahaja v mapi scripts, če hočete igro zagnati priporočam brskalnik chrome. Če zaganjate preko računalnika:
+Koda se nahaja v mapi scripts, če hočete igro zagnati priporočam brskalnik chrome ali firefox. Če zaganjate preko računalnika:
+\begin{enumerate}
+	\item Odpri index.html ali \url{http://ppceltra.s3-website.eu-central-1.amazonaws.com/}
+	\item Osveži stran
+\end{enumerate}
+
+Koda se nahaja v mapi scripts, če hočete igro zagnati priporočam brskalnik chrome ali firefox. Če zaganjate preko računalnika in hočete igrati v mobilnem načinu:
+
 \begin{enumerate}
 	\item Odpri index.html ali \url{http://ppceltra.s3-website.eu-central-1.amazonaws.com/}
 	\item Pritistni F12
-	\item Namesto responsive device izberi iPhone 5 ali podobno mobilno napravo, igra je bila razvita in testirana na iPhone5
+	\item Namesto responsive device izberi iPhone 5 ali podobno mobilno napravo
 	\item Zarotiraj telefon z pritiskom gumba na desno in osveži strani
 \end{enumerate}
 
