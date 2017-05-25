@@ -10,7 +10,7 @@
    
 ### Kako igrat
 
-[Beri mene, poglavje 5 / zadnja stran](https://github.com/pecarprimoz/PP_CELTRA_GAME/blob/master/celtra_porocilo_pecar.pdf)
+[Beri mene, poglavje 7 / zadnja stran](https://github.com/pecarprimoz/PP_CELTRA_GAME/blob/master/celtra_porocilo_pecar.pdf)
 
 ### Sedaj tudi na mobitelu
 
@@ -23,3 +23,6 @@ Namen je igrat v pokoncnem nacinu, tko da zarotiras telefon in refreshas page za
  * Lanea Zimmerman, dirt tiles used in this game, also the moon and background
  * Buch @ https://opengameart.org/users/buch; the knight as the enemy
 
+### DISCLAIMER
+
+The tiles are under CC liscence, the knight and audio are public domain, so I am free to use it for my own purposes.
