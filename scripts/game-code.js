@@ -15,7 +15,9 @@ Made by Primož Pečar, fri vsš 2 letnik
  */
 
 //Globalni variabli, uporabljeni čez cel projekt
-let canvas, ctx, width, height, player,
+//Čeprav uporabljam EMCA script 6, je problem na iOS-u, saj mu ni všeč da so globalne spremenjljivke definirane z let/const
+//popravil tako da uporabim var
+var canvas, ctx, width, height, player,
     worldOffsetX = 0,
     tileOffsetX = 0,
     worldOffsetY = 0,
@@ -27,6 +29,8 @@ let canvas, ctx, width, height, player,
     powerJumps=5,
     player_coins=0,
     distance_traveled=0;
+
+var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 /*
  // keys --> Array za tipke, za telefon in računalnik
@@ -129,7 +133,12 @@ const initGame = function(){
                 let y = e.accelerationIncludingGravity.y;
                 let z = e.accelerationIncludingGravity.z;
                 if(Math.abs(y)>10 && Math.abs(x)>10 && Math.abs(z)){
+                    try{
                     window.navigator.vibrate(200);
+                    }
+                catch(err){
+                    //Grd način za reševanje vibrate težav na iOS napravah, sicer deluje normalno
+                    }
                     num_of_platforms=0;
                     mytiles.innerHTML=0;
                     createTileMap();
@@ -1067,7 +1076,12 @@ function restartCurrentlevel(){
 function checkifdied(){
     if(Math.floor(player.y)>heightCols){
         all_audio[5].play();
+        try{
         window.navigator.vibrate(200);
+        }
+        catch(err){
+            //Grd način za reševanje vibrate težav na iOS napravah, sicer deluje normalno
+        }
         player_hp--;
         hp.innerHTML=player_hp;
         restartCurrentlevel();
@@ -1098,15 +1112,25 @@ function checkifdied(){
 
     }
     if(player_hp===0){
-        window.navigator.vibrate(1000);
+        try {
+            window.navigator.vibrate(1000);
+        }
+        catch(err){
+            //Grd način za reševanje vibrate težav na iOS napravah, sicer deluje normalno
+        }
         endGameLose()
     }
 }
 
 //Ubijemo igralca, potrebno za kolizijo med sovražnikom
-function killPlayer(){
+function killPlayer() {
     all_audio[5].play();
+    try {
     window.navigator.vibrate(500);
+    }
+    catch(err){
+        //Grd način za reševanje vibrate težav na iOS napravah, sicer deluje normalno
+    }
     player_hp--;
     hp.innerHTML=player_hp;
     restartCurrentlevel();
@@ -1201,6 +1225,7 @@ function calculatRandomWidth(){
 /************************** KONTROLE *****************************/
 
 function initMobileControls(){
+
     document.getElementById("LEFT").addEventListener("touchstart", function () {
         keys[420]=true
     },{passive:true});
@@ -1243,6 +1268,7 @@ function initMobileControls(){
 
 //V primeru da nismo na telefonu pobrišemo dodatne hud elemente
 function setPhoneControlsOff(){
+
     document.getElementById("LEFT").style.display = "none";
     document.getElementById("RIGHT").style.display = "none";
     document.getElementById("JUMP").style.display = "none";
@@ -1250,10 +1276,10 @@ function setPhoneControlsOff(){
     canvas.addEventListener("mousedown", function (e) {
         canDestory.check=true;
         canDestory.event=e;
-
     },{passive:true});
     canvas.addEventListener("mousemove", function(e) {
         canDestory.event=e;
+        console.log(e)
     },{passive:true});
     canvas.addEventListener("mouseup", function () {
         canDestory.check=false;

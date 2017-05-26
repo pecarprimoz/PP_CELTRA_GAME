@@ -152,6 +152,22 @@ Kontrole na telefonih so sledeče, v levem spodnjem kotu sta gumba za levo in de
 
 Igro sem pošiljal prijateljem kateri so preverjali na svojih mobilnih napravah. Vsi uporabniki na android napravah so mi zagotovili, da je uporabniška izkušnja dobra, ni buggov, igra je v stanju kjer jo lahko igraš, nekaterim je bila pretežka. Problem pa je bil na iPhonu, saj sem dobil povratno informacijo, da je dobil le bel ekran. Sicer sem testiral v emulatorju na chrome-u, vendar ta simulira le dimenzije telefona, samega operecijskega sistema pa ne. Načeloma igra bi morala delovati na vseh možnih napravah, saj je sama generacija terena narejena okoli tega.
 
+\subsection{PC - Specifično}
+
+Igra je bila testirana na sledečih operacijskih sistemih, Windows 8.1, Windows 10, iOS, Debian. Vsepovsod se je igro dalo igrati. Problemi so se pojavili na iOS sistemih, saj browserji, čeprav niso telefoni, poskušajo izvajati vibrate evente. Uradno je igra podprta na brskalnikih Firefox, Chrome, Chromium, Opera, Edge*, Safari*. Safari in edge imata težave z event listenerji in sicer ko dvignemo miško izven ekrana ševedno delujejo. Na edgu to ni problem saj samo uničuje blokce brez pritiska na njih, VELIK problem pa je na safariju, saj zbije število sličic na sekundo (FPS), na okoli 5-10. Težavo sem poskušal odpraviti, vendar sem imel možnost, da odstranim swipe efekte in omogočam podporo Safariju, tako da sem na koncu raje obdržal swipe podporo.
+
+\subsection{Mobilne naprave - Specifično}
+
+Na mobilnih napravah se je igra presenetljivo izvajala zelo dobro. Testirana je bila na android in iOS napravah, nimam pa prijateljev, ki bi uporabljali Windows phone, tako, da ne jamčim za delovanje na njihovi platformi. Uradno podprti so android in iOS in sicer na brskalniku firefox. Sicer igra deluje tudi na Chrome brskalnikih, vendar se je na iOS pojavil problem, da se zaradi samega operacijskega sistema gumbi zamaknejo izven ekrana (zgornji navigation bar vedno ostane na zaslonu, posledično vse zamakne dol).
+
+\subsection{TL;DR}
+
+Igra dela, priporočam android ali iPhone z brskalnikom Firefox za najboljšo uporabniško izkušnjo. Deluje tudi dobro na Chrome brskalnikih, vendar so problemi na iOS.
+
+\subsection{Znani bug-i}
+
+Sidescrolling dela velike težave collision detectionu, sam collsion detection ni najbolje stabilen, če se veliko premikamo levo in desno. V primeru, da se premikamo samo v desno po večini ni problemov. Če gremo levo in skočimo 2x gor pademo izven array-a in to ustavi igro, saj player pride na neveljaven index. Na brskalniku Safari iz neznanega razloga igra pade na 5 fpsjev, če uporabimo touch/mouse evente, žal ne moram testirati bolj, ker nimam nobeno iOS naprave. Pri bolj zmogljivih napravah igra deluje neverjetno hitro, samo po sebi to ni bug vendar requestAnimationFrame deluje na tak način, posledično se lahko zgodi, da skočimo izven mape.
+
 \section{Končna misel}
 
 Sam projekt je bil zanimiv, vendar večkrat med programiranjem sem čutil krutosti javascripta in njegovih errorv. Za nekoga, ki se še nikoli ni ukvarjal s takimi stvarmi je bila to dobra izkušnja za učenje in razumevanje game developmenta. 
