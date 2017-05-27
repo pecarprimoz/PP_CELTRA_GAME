@@ -1279,7 +1279,6 @@ function setPhoneControlsOff(){
     },{passive:true});
     canvas.addEventListener("mousemove", function(e) {
         canDestory.event=e;
-        console.log(e)
     },{passive:true});
     canvas.addEventListener("mouseup", function () {
         canDestory.check=false;
