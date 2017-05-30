@@ -9,7 +9,9 @@
 
 http://ppceltra.s3-website.eu-central-1.amazonaws.com/
 
-Namen je igrat v pokoncnem nacinu, tko da zarotiras telefon in refreshas page za najboljsi player experience
+Namen je igrat v pokoncnem nacinu, tko da zarotiras telefon in refreshas page za najboljsi player experience.
+
+ČE SE TI NE RENDERA IGRA PRAVILNO OB ROTIRANJU ALI NALAGANJU STRANI, LE REFRESHAJ PAGE IN SE POPRAVI
 
 ### Artist shoutout
 
